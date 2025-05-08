@@ -19,9 +19,7 @@ import reservation.ReservationModel.ReservationResult;
 public class ReservationFrame extends javax.swing.JFrame {
     private ReservationController controller;
     private String lastSelectedRoom;
-    /**
-     * Creates new form ReservationFrame
-     */
+
     public ReservationFrame() {
         this.controller = new ReservationController(); // controller 생성   
         initComponents();
