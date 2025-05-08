@@ -31,7 +31,7 @@ public class ReservationModel {
         String dayOfWeek = getDayOfWeek(date); // "월", "화" 등
 
         // 3. 수업 시간표 반영
-        String schedulePath = "src/main/resource/schedule_" + roomNumber + ".txt";
+        String schedulePath = "src/main/resources/schedule_" + roomNumber + ".txt";
         try (BufferedReader br = new BufferedReader(new FileReader(schedulePath))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -53,7 +53,7 @@ public class ReservationModel {
         }
 
         // 4. 예약 상태 반영
-        String reservationPath = "src/main/resource/reservation_data.txt";
+        String reservationPath = "src/main/resources/reservation_data.txt";
         try (BufferedReader br = new BufferedReader(new FileReader(reservationPath))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -119,7 +119,7 @@ public class ReservationModel {
     
     //예약 내역 텍스트 파일에 저장
     public boolean saveReservation(String date, String time, String room, String name, String status) {
-        String path = "src/main/resource/reservation_data.txt";
+        String path = "src/main/resources/reservation_data.txt";
         String line = String.join(",", date, time, room, name, status);
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(path, true))) {
