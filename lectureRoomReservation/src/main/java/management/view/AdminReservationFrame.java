@@ -2,7 +2,23 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package management.view;
+package management.view;    // 실제 패키지명에 맞춰 변경
+
+import java.awt.event.ActionListener;
+import javax.swing.event.ListSelectionListener;
+import java.time.DayOfWeek;
+import java.util.List;
+
+import management.model.Reservation;
+import management.model.Room;
+import management.model.ScheduleEntry;
+
+import management.view.ReservationTableModel;
+import management.view.RoomTableModel;
+import management.view.ScheduleTableModel;
+import management.controller.AdminReservationController;
+import management.controller.AdminRoomController;
+
 
 /**
  *
@@ -15,7 +31,109 @@ public class AdminReservationFrame extends javax.swing.JFrame {
      */
     public AdminReservationFrame() {
         initComponents();
+        
+        reasonField.setEnabled(false);
+        closedCheck.addActionListener(e ->
+        reasonField.setEnabled(closedCheck.isSelected())
+    );
     }
+    
+    // ─── 예약 목록 버튼 리스너 등록 ──────────────────────────────────────────
+    // 승인
+    public void addApproveListener(ActionListener l) {
+        approveButton.addActionListener(l);
+    }
+    // 거절
+    public void addRejectListener(ActionListener l) {
+        rejectButton.addActionListener(l);
+    }
+    // 새로고침
+    public void addRefreshListener(ActionListener l) {
+        refreshButton.addActionListener(l);
+    }
+    
+
+    // ─── 예약 목록 조회/변경 ────────────────────────────────────────────────
+    // 선택된 테이블 행 인덱스
+    public int getSelectedReservationIndex() {
+        return reservationTable.getSelectedRow();
+    }
+    // 해당 인덱스의 Reservation 객체 꺼내기
+    public Reservation getReservationAt(int idx) {
+        return ((ReservationTableModel)reservationTable.getModel())
+                .getReservationAt(idx);
+    }
+    // 컨트롤러가 넘긴 데이터로 JTable 갱신
+    public void setReservationTable(List<Reservation> data) {
+        reservationTable.setModel(new ReservationTableModel(data));
+    }
+
+    // ─── 강의실 목록 선택 리스너 ───────────────────────────────────────────
+    public void addRoomSelectionListener(ListSelectionListener l) {
+        roomTable.getSelectionModel().addListSelectionListener(l);
+    }
+
+    // ─── 스케줄 등록 버튼 리스너 ─────────────────────────────────────────
+    public void addRegisterScheduleListener(ActionListener l) {
+        registerButton.addActionListener(l);
+    }
+
+    // ─── 강의실 정보 조회 ────────────────────────────────────────────────
+    // 선택된 강의실 ID
+    public String getSelectedRoomId() {
+        int r = roomTable.getSelectedRow();
+        return (String)roomTable.getValueAt(r, 0);
+    }
+    // 사용 가능 체크 여부
+    public boolean isAvailableChecked() {
+        return availableCheck.isSelected();
+    }
+    // 선택된 요일 → DayOfWeek
+    public DayOfWeek getSelectedDay() {
+        switch ((String)dayCombo.getSelectedItem()) {
+            case "월": return DayOfWeek.MONDAY;
+            case "화": return DayOfWeek.TUESDAY;
+            case "수": return DayOfWeek.WEDNESDAY;
+            case "목": return DayOfWeek.THURSDAY;
+            case "금": return DayOfWeek.FRIDAY;
+            default:   return DayOfWeek.MONDAY;
+        }
+    }
+    // 선택된 시간 문자열
+    public String getSelectedTime() {
+        return (String)timeCombo.getSelectedItem();
+    }
+    // 불가능 사유 텍스트
+    public String getReasonText() {
+        return reasonField.getText();
+    }
+    // AdminReservationFrame.java 에 추가
+    public int getSelectedRoomIndex() {
+        return roomTable.getSelectedRow();
+    }
+
+
+    // ─── 테이블 데이터 갱신 ───────────────────────────────────────────────
+    public void setRoomTable(List<Room> rooms) {
+        roomTable.setModel(new RoomTableModel(rooms));
+    }
+    public void setScheduleTable(List<ScheduleEntry> sch) {
+        scheduleTable.setModel(new ScheduleTableModel(sch));
+    }
+    
+    public void setRoomDetails(String roomId, Room.Availability avail, String reason) {
+        // 텍스트 필드에 강의실 ID 출력
+        textField1.setText(roomId);
+
+        // 체크박스 상태 반영
+        availableCheck.setSelected(avail == Room.Availability.OPEN);
+        closedCheck.  setSelected(avail == Room.Availability.CLOSED);
+
+        // 사유 필드 반영 및 활성/비활성
+        reasonField.setText(reason);
+        reasonField.setEnabled(avail == Room.Availability.CLOSED);
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -26,18 +144,271 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jTabbedPane1 = new javax.swing.JTabbedPane();
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        approveButton = new javax.swing.JButton();
+        rejectButton = new javax.swing.JButton();
+        refreshButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        reservationTable = new javax.swing.JTable();
+        jPanel2 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        roomTable = new javax.swing.JTable();
+        jPanel3 = new javax.swing.JPanel();
+        jLabel2 = new javax.swing.JLabel();
+        availableCheck = new javax.swing.JCheckBox();
+        closedCheck = new javax.swing.JCheckBox();
+        textField1 = new java.awt.TextField();
+        dayCombo = new javax.swing.JComboBox<>();
+        label1 = new java.awt.Label();
+        label2 = new java.awt.Label();
+        label3 = new java.awt.Label();
+        timeCombo = new javax.swing.JComboBox<>();
+        reasonField = new java.awt.TextField();
+        label4 = new java.awt.Label();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        scheduleTable = new javax.swing.JTable();
+        jLabel3 = new javax.swing.JLabel();
+        registerButton = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 640, Short.MAX_VALUE)
+        jLabel1.setFont(new java.awt.Font("맑은 고딕", 1, 18)); // NOI18N
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel1.setText("예약 목록");
+
+        approveButton.setText("승인");
+
+        rejectButton.setText("거절");
+
+        refreshButton.setText("새로고침");
+
+        reservationTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "예약 번호", "날짜", "시간", "강의실", "이름", "상태"
+            }
+        ));
+        jScrollPane1.setViewportView(reservationTable);
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(193, Short.MAX_VALUE)
+                .addComponent(approveButton)
+                .addGap(92, 92, 92)
+                .addComponent(rejectButton)
+                .addGap(89, 89, 89)
+                .addComponent(refreshButton)
+                .addGap(199, 199, 199))
+            .addComponent(jScrollPane1)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(357, 357, 357)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 449, Short.MAX_VALUE)
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(59, 59, 59)
+                .addComponent(jLabel1)
+                .addGap(36, 36, 36)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(refreshButton)
+                    .addComponent(rejectButton)
+                    .addComponent(approveButton))
+                .addGap(41, 41, 41))
         );
+
+        jTabbedPane1.addTab("예약 목록", jPanel1);
+
+        roomTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null},
+                {null, null}
+            },
+            new String [] {
+                "강의실", "상태"
+            }
+        ));
+        jScrollPane4.setViewportView(roomTable);
+
+        jPanel3.setBackground(new java.awt.Color(255, 255, 255));
+
+        jLabel2.setFont(new java.awt.Font("맑은 고딕", 1, 14)); // NOI18N
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel2.setText("강의실 일정 관리");
+
+        availableCheck.setText("사용 가능");
+
+        closedCheck.setText("사용 불가능");
+
+        textField1.setText("강의실");
+
+        dayCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "월", "화", "수", "목", "금", "토", "일" }));
+
+        label1.setFont(new java.awt.Font("맑은 고딕", 0, 12)); // NOI18N
+        label1.setText("강의실 :");
+
+        label2.setFont(new java.awt.Font("맑은 고딕", 0, 12)); // NOI18N
+        label2.setText("요일 :");
+
+        label3.setFont(new java.awt.Font("맑은 고딕", 0, 12)); // NOI18N
+        label3.setText("시간 :");
+
+        timeCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50", "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50", "17:00~17:50" }));
+
+        reasonField.setText("textField2");
+
+        label4.setFont(new java.awt.Font("맑은 고딕", 0, 12)); // NOI18N
+        label4.setText("사유 :");
+
+        scheduleTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "날짜", "시간", "과목명", "담당 교수"
+            }
+        ));
+        jScrollPane5.setViewportView(scheduleTable);
+
+        jLabel3.setFont(new java.awt.Font("맑은 고딕", 1, 14)); // NOI18N
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("강의실 일정");
+
+        registerButton.setText("등록하기");
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(35, 35, 35)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 506, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(availableCheck)
+                                    .addComponent(closedCheck))
+                                .addGap(63, 63, 63)
+                                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(15, 15, 15)
+                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(dayCombo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(51, 51, 51)
+                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, 54, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                            .addComponent(timeCombo, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                            .addComponent(reasonField, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                                    .addGroup(jPanel3Layout.createSequentialGroup()
+                                        .addGap(27, 27, 27)
+                                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 143, javax.swing.GroupLayout.PREFERRED_SIZE)))))))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGap(238, 238, 238)
+                        .addComponent(registerButton, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(43, Short.MAX_VALUE))
+        );
+        jPanel3Layout.setVerticalGroup(
+            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel3Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jLabel2)
+                .addGap(23, 23, 23)
+                .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addComponent(timeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(reasonField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(jPanel3Layout.createSequentialGroup()
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(availableCheck)
+                            .addComponent(textField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(label1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(label3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(closedCheck)
+                            .addComponent(dayCombo, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(label2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(jPanel3Layout.createSequentialGroup()
+                                .addGap(1, 1, 1)
+                                .addComponent(label4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addGap(21, 21, 21)
+                .addComponent(jLabel3)
+                .addGap(18, 18, 18)
+                .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 26, Short.MAX_VALUE)
+                .addComponent(registerButton)
+                .addGap(22, 22, 22))
+        );
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.PREFERRED_SIZE, 205, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jScrollPane4)
+            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+        );
+
+        jTabbedPane1.addTab("강의실 관리", jPanel2);
+
+        getContentPane().add(jTabbedPane1, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -46,37 +417,48 @@ public class AdminReservationFrame extends javax.swing.JFrame {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(AdminReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(AdminReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(AdminReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(AdminReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new AdminReservationFrame().setVisible(true);
+        java.awt.EventQueue.invokeLater(() -> {
+            try {
+                AdminReservationFrame frame = new AdminReservationFrame();
+                // 컨트롤러 연결
+                new AdminReservationController(frame);
+                new AdminRoomController(frame);
+                frame.setVisible(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         });
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton approveButton;
+    private javax.swing.JCheckBox availableCheck;
+    private javax.swing.JCheckBox closedCheck;
+    private javax.swing.JComboBox<String> dayCombo;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JTabbedPane jTabbedPane1;
+    private java.awt.Label label1;
+    private java.awt.Label label2;
+    private java.awt.Label label3;
+    private java.awt.Label label4;
+    private java.awt.TextField reasonField;
+    private javax.swing.JButton refreshButton;
+    private javax.swing.JButton registerButton;
+    private javax.swing.JButton rejectButton;
+    private javax.swing.JTable reservationTable;
+    private javax.swing.JTable roomTable;
+    private javax.swing.JTable scheduleTable;
+    private java.awt.TextField textField1;
+    private javax.swing.JComboBox<String> timeCombo;
     // End of variables declaration//GEN-END:variables
 }
