@@ -6,7 +6,7 @@ package reservation;
  * @author rbcks
  */
 import java.util.List;
-import reservation.ReservationModel.ReservationResult;
+import reservation.ReservationResult;
 
 public class ReservationController {
 

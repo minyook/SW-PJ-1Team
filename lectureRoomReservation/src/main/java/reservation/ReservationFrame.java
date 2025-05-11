@@ -10,7 +10,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import reservation.ReservationModel.ReservationResult;
+import reservation.ReservationResult;
 
 /**
  *

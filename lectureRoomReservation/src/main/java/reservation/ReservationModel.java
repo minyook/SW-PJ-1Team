@@ -98,14 +98,6 @@ public class ReservationModel {
             default: return "";
         }
     }
-    //예약 상태
-    public enum ReservationResult {
-        SUCCESS,         // 예약 저장 성공
-        TIME_OCCUPIED,   // 이미 수업/예약된 시간
-        NOT_SELECTED,    // 아무 행도 선택되지 않음
-        ERROR            // 저장 실패 등 알 수 없는 오류
-    }
-    
     //빈 강의실 체크
     public boolean checkAvailability(String date, String time, String room) {
         List<RoomStatus> statusList = loadTimetable(date, room);
