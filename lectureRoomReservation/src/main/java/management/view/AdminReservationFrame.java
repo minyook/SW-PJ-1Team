@@ -72,6 +72,15 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     public void addRoomSelectionListener(ListSelectionListener l) {
         roomTable.getSelectionModel().addListSelectionListener(l);
     }
+    
+    public int getSelectedRoomIndex() {
+        return roomTable.getSelectedRow();
+    }
+
+    // ─── 요일 필터 콤보박스 리스너 ─────────────────────────────────────────
+    public void addDayFilterListener(ActionListener l) {
+        dayCombo.addActionListener(l);
+    }
 
     // ─── 스케줄 등록 버튼 리스너 ─────────────────────────────────────────
     public void addRegisterScheduleListener(ActionListener l) {
@@ -106,10 +115,6 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     // 불가능 사유 텍스트
     public String getReasonText() {
         return reasonField.getText();
-    }
-    // AdminReservationFrame.java 에 추가
-    public int getSelectedRoomIndex() {
-        return roomTable.getSelectedRow();
     }
 
 
@@ -289,22 +294,22 @@ public class AdminReservationFrame extends javax.swing.JFrame {
 
         scheduleTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "날짜", "시간", "과목명", "담당 교수"
+                "시간", "월", "화", "수", "목", "금", "담당 교수"
             }
         ));
         jScrollPane5.setViewportView(scheduleTable);
@@ -442,8 +447,6 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JTabbedPane jTabbedPane1;

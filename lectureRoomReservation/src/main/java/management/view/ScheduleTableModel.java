@@ -1,30 +1,53 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package management.view;
 
 import management.model.ScheduleEntry;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.List;
+import java.time.DayOfWeek;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * 한 강의실의 스케줄(차단 또는 기존 수업 일정)을 JTable 에 뿌려주기 위한 TableModel
+ * 요일별 캘린더 뷰 방식의 스케줄 TableModel
+ * 첫 컬럼은 시간, 이후 월~금 컬럼으로 배열되며,
+ * 각 셀에는 차단 사유가 표시됩니다.
  */
 public class ScheduleTableModel extends AbstractTableModel {
-    private final List<ScheduleEntry> list;
-    private final String[] columns = { "요일", "시작", "종료", "가능 여부", "사유" };
+    private final String[] columns = { "시간", "월", "화", "수", "목", "금" };
+    private final List<String> timeSlots;
+    private final Map<DayOfWeek, Map<String, ScheduleEntry>> scheduleMap;
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
 
-    public ScheduleTableModel(List<ScheduleEntry> list) {
-        this.list = list;
+    public ScheduleTableModel(List<ScheduleEntry> entries) {
+        // 1) 유니크한 시간 슬롯을 추출해 정렬
+        this.timeSlots = entries.stream()
+            .map(e -> e.getStartTime().format(timeFmt) + "~" + e.getEndTime().format(timeFmt))
+            .distinct()
+            .sorted(Comparator.comparing(slot ->
+                LocalTime.parse(slot.split("~")[0], timeFmt)))
+            .collect(Collectors.toList());
+
+        // 2) 요일×시간 맵 초기화
+        scheduleMap = new EnumMap<>(DayOfWeek.class);
+        for (DayOfWeek d : DayOfWeek.values()) {
+            scheduleMap.put(d, new HashMap<>());
+        }
+        // 3) 각 엔트리를 해당 요일·시간 슬롯에 매핑
+        for (ScheduleEntry e : entries) {
+            String slot = e.getStartTime().format(timeFmt) + "~" + e.getEndTime().format(timeFmt);
+            scheduleMap.get(e.getDay()).put(slot, e);
+        }
     }
 
     @Override
     public int getRowCount() {
-        return list.size();
+        return timeSlots.size();
     }
 
     @Override
@@ -39,34 +62,18 @@ public class ScheduleTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        ScheduleEntry e = list.get(row);
-        switch (col) {
-            case 0: 
-                // DayOfWeek → 한글
-                switch (e.getDay()) {
-                    case MONDAY:    return "월";
-                    case TUESDAY:   return "화";
-                    case WEDNESDAY: return "수";
-                    case THURSDAY:  return "목";
-                    case FRIDAY:    return "금";
-                    default:        return e.getDay().toString();
-                }
-            case 1: 
-                return e.getStartTime().format(timeFmt);
-            case 2:
-                return e.getEndTime().format(timeFmt);
-            case 3:
-                return e.isAvailable() ? "사용가능" : "사용불가능";
-            case 4:
-                return e.isAvailable() ? "" : e.getReason();
-            default:
-                return "";
+        String slot = timeSlots.get(row);
+        if (col == 0) {
+            // 첫 번째 컬럼: 시간 슬롯
+            return slot;
         }
-    }
-
-    /** 필요하면 선택된 스케줄 엔트리 꺼내기 */
-    public ScheduleEntry getEntryAt(int row) {
-        return list.get(row);
+        // col 1=MONDAY, 2=TUESDAY, … 5=FRIDAY
+        DayOfWeek day = DayOfWeek.of(col);
+        ScheduleEntry e = scheduleMap.get(day).get(slot);
+        if (e == null) {
+            return "";
+        }
+        // '사용 불가능'인 경우만 사유 표시
+        return e.isAvailable() ? "" : "불가: " + e.getReason();
     }
 }
-
