@@ -11,4 +11,22 @@
         <maven.compiler.target>21</maven.compiler.target>
         <exec.mainClass>deu.cse.lectureroomreservation.LectureRoomReservation</exec.mainClass>
     </properties>
+    <dependencies>
+    <!-- 테스트 작성용 API -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.10.1</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- 테스트 실행 엔진 -->
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>5.10.1</version>
+        <scope>test</scope>
+    </dependency>
+</dependencies>
+
 </project>
