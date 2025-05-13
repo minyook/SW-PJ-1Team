@@ -8,6 +8,7 @@ import login.UserModel;
 import login.LoginView;
 import login.User;
 import reservation.ReservationMainFrame;
+import management.view.AdminReservationFrame;
 
 
 import javax.swing.*;
@@ -35,42 +36,26 @@ public class LoginController {
     User user = model.authenticate(username, password);
 
     if (user != null) {
-       
-
         String role = user.getRole();
-        if (role.equals("s") || role.equals("p")) {
-            // 권한이 학생 또는 교수이면 예약 화면 띄우기
-            SwingUtilities.invokeLater(() -> {
+        System.out.println("role: [" + role + "]");
+        
+        SwingUtilities.invokeLater(() -> {
+        switch(role){
+            case "s":
+            case "p":
+                // 권한이 학생 또는 교수이면 예약 화면 띄우기
                 new ReservationMainFrame().setVisible(true);
-            });
+                break;
+            case "a":
+                // 권한이 조교이면 관리자 화면 띄우기
+                new AdminReservationFrame().setVisible(true);
+                break;
+            default:
+                view.showMessage("알 수 없는 권한 입니다:" + role);
         }
+      });
     } else {
         view.showMessage("아이디 또는 비밀번호가 틀렸습니다.");
     }
+  }
 }
-
-     
-    // 내부 클래스: 로그인 버튼이 눌렸을 때 실제로 실행되는 코드
-    class LoginButtonListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            // 사용자 입력값을 View에서 가져옴
-            String username = view.getUsername();
-            String password = view.getPassword();
-
-            // Model을 통해 로그인 인증 시도
-           User user = model.authenticate(username, password);
-            if (user != null) {
-                // 로그인 성공 시
-                JOptionPane.showMessageDialog(null, "로그인 성공!");
-                // 다음 화면으로 전환
-                if(user.getRole().equals("s")||user.getRole().equals("p")){
-                    new ReservationMainFrame();
-                }
-            } else {
-                // 로그인 실패 시
-                JOptionPane.showMessageDialog(null, "아이디 또는 비밀번호가 틀렸습니다.");
-                 }
-            }
-        }
-    }

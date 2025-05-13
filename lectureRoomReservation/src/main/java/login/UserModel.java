@@ -34,10 +34,10 @@ public class UserModel {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length >= 4) {
-                    String username = parts[0];
-                    String password = parts[1];
-                    String role = parts[2];
-                    String name = parts[3];
+                    String username = parts[0].trim();
+                    String password = parts[1].trim();
+                    String role = parts[2].trim();
+                    String name = parts[3].trim();
                     users.add(new User(username, password, role, name));
                 }
             }
