@@ -82,16 +82,25 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#xc608;&#xc57d;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="reservationBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="timeTableBtn">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#xc2dc;&#xac04;&#xd45c; &#xc870;&#xd68c;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="timeTableBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="myReservationBtn">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#xb0b4; &#xc608;&#xc57d; &#xd604;&#xd669;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="myReservationBtnActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

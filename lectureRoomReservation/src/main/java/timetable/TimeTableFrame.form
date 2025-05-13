@@ -273,6 +273,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#xb4a4;&#xb85c;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backBtnActionPerformed"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

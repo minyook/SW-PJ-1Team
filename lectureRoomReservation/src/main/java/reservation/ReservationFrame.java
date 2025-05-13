@@ -145,6 +145,7 @@ public class ReservationFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         timeTable = new javax.swing.JTable();
         reservationBtn = new javax.swing.JButton();
+        backBtn = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -173,7 +174,7 @@ public class ReservationFrame extends javax.swing.JFrame {
 
         jLabel7.setText("실습실");
 
-        jPanel2.setLayout(new java.awt.GridLayout());
+        jPanel2.setLayout(new java.awt.GridLayout(1, 0));
 
         Btn911.setText("911");
         Btn911.addActionListener(new java.awt.event.ActionListener() {
@@ -209,7 +210,7 @@ public class ReservationFrame extends javax.swing.JFrame {
 
         jLabel8.setText("이론실");
 
-        jPanel4.setLayout(new java.awt.GridLayout());
+        jPanel4.setLayout(new java.awt.GridLayout(1, 0));
 
         Btn908.setText("908");
         Btn908.addActionListener(new java.awt.event.ActionListener() {
@@ -296,12 +297,21 @@ public class ReservationFrame extends javax.swing.JFrame {
             }
         });
 
+        backBtn.setText("뒤로");
+        backBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBtnActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(backBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel1)
                 .addGap(252, 252, 252))
             .addGroup(jPanel1Layout.createSequentialGroup()
@@ -337,8 +347,13 @@ public class ReservationFrame extends javax.swing.JFrame {
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(27, 27, 27)
-                .addComponent(jLabel1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addComponent(jLabel1))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(backBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(26, 26, 26)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -428,6 +443,13 @@ public class ReservationFrame extends javax.swing.JFrame {
         handleReservationRequest();
     }//GEN-LAST:event_reservationBtnActionPerformed
 
+    private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        ReservationMainFrame RMF = new ReservationMainFrame();
+        RMF.setVisible(true);
+    }//GEN-LAST:event_backBtnActionPerformed
+
     public static void main(String args[]) {
         try {
             UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -449,6 +471,7 @@ public class ReservationFrame extends javax.swing.JFrame {
     private javax.swing.JButton Btn915;
     private javax.swing.JButton Btn916;
     private javax.swing.JButton Btn918;
+    private javax.swing.JButton backBtn;
     private javax.swing.JComboBox<String> dayComboBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

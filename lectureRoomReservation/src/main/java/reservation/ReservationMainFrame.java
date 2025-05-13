@@ -4,6 +4,9 @@
  */
 package reservation;
 
+import myreservation.MyReservationFrame;
+import timetable.TimeTableFrame;
+
 /**
  *
  * @author rbcks
@@ -38,10 +41,25 @@ public class ReservationMainFrame extends javax.swing.JFrame {
         jLabel1.setText("강의실 예약 시스템");
 
         reservationBtn.setText("예약");
+        reservationBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                reservationBtnActionPerformed(evt);
+            }
+        });
 
         timeTableBtn.setText("시간표 조회");
+        timeTableBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                timeTableBtnActionPerformed(evt);
+            }
+        });
 
         myReservationBtn.setText("내 예약 현황");
+        myReservationBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                myReservationBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -85,6 +103,27 @@ public class ReservationMainFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void reservationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_reservationBtnActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        ReservationFrame RF = new ReservationFrame();
+        RF.setVisible(true);
+    }//GEN-LAST:event_reservationBtnActionPerformed
+
+    private void timeTableBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_timeTableBtnActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        TimeTableFrame TTF = new TimeTableFrame();
+        TTF.setVisible(true);
+    }//GEN-LAST:event_timeTableBtnActionPerformed
+
+    private void myReservationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myReservationBtnActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        MyReservationFrame MRF = new MyReservationFrame();
+        MRF.setVisible(true);
+    }//GEN-LAST:event_myReservationBtnActionPerformed
 
     /**
      * @param args the command line arguments

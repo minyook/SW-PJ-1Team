@@ -4,6 +4,8 @@
  */
 package timetable;
 
+import reservation.ReservationMainFrame;
+
 /**
  *
  * @author rbcks
@@ -79,6 +81,11 @@ public class TimeTableFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(timeTable);
 
         backBtn.setText("뒤로");
+        backBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backBtnActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -149,6 +156,13 @@ public class TimeTableFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        ReservationMainFrame RMF = new ReservationMainFrame();
+        RMF.setVisible(true);
+    }//GEN-LAST:event_backBtnActionPerformed
 
     /**
      * @param args the command line arguments
