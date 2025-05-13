@@ -29,24 +29,36 @@ public class RoomModel {
 
     /**
      * rooms.txt 파일을 읽어 rooms 리스트를 채웁니다.
+     * 라인이 비어 있거나 필드가 부족하면 건너뜁니다.
      */
     private void load() throws IOException {
         rooms.clear();
         Path p = Paths.get(ROOM_FILE);
         if (!Files.exists(p)) {
-            // 파일이 없으면 빈 리스트로 그대로 둡니다.
             return;
         }
         for (String line : Files.readAllLines(p)) {
-            // "911,사용가능" 또는 "913,사용불가능,사유" 형식
+            if (line == null || line.isBlank()) continue;
             String[] f = line.split(",", 3);
-            Room.Availability avail = "사용가능".equals(f[1])
-                ? Room.Availability.OPEN
-                : Room.Availability.CLOSED;
-            String reason = (avail == Room.Availability.CLOSED && f.length > 2)
-                ? f[2]
-                : "";
-            rooms.add(new Room(f[0], avail, reason));
+            if (f.length < 2) continue;  // 최소 ID, 상태 필요
+            String id = f[0].trim();
+            String status = f[1].trim();
+            Room.Availability avail;
+            String reason = "";
+
+            if ("사용가능".equals(status)) {
+                avail = Room.Availability.OPEN;
+            } else if ("사용불가능".equals(status)) {
+                avail = Room.Availability.CLOSED;
+                if (f.length > 2) {
+                    reason = f[2].trim();
+                }
+            } else {
+                // 알 수 없는 상태면 기본 OPEN
+                avail = Room.Availability.OPEN;
+            }
+
+            rooms.add(new Room(id, avail, reason));
         }
     }
 
@@ -62,22 +74,28 @@ public class RoomModel {
      * rooms.txt 파일 전체를 덮어쓰기로 갱신합니다.
      */
     public void updateRoom(Room updated) throws IOException {
-        // 메모리상의 리스트에서 동일 ID의 Room을 찾아 업데이트
+        // 메모리 리스트에 반영
         for (int i = 0; i < rooms.size(); i++) {
             if (rooms.get(i).getRoomId().equals(updated.getRoomId())) {
                 rooms.set(i, updated);
                 break;
             }
         }
-        // 변경된 리스트를 파일에 다시 씀
+        // 파일에 다시 쓰기
         List<String> out = rooms.stream()
-            .map(r ->
-                r.getRoomId() + "," +
-                (r.getAvailability() == Room.Availability.OPEN ? "사용가능" : "사용불가능") +
-                (r.getAvailability() == Room.Availability.CLOSED
-                    ? "," + r.getCloseReason()
-                    : "")
-            )
+            .map(r -> {
+                StringBuilder sb = new StringBuilder();
+                sb.append(r.getRoomId()).append(",");
+                if (r.getAvailability() == Room.Availability.OPEN) {
+                    sb.append("사용가능");
+                } else {
+                    sb.append("사용불가능");
+                    if (r.getCloseReason() != null && !r.getCloseReason().isBlank()) {
+                        sb.append(",").append(r.getCloseReason());
+                    }
+                }
+                return sb.toString();
+            })
             .collect(Collectors.toList());
 
         Files.write(
