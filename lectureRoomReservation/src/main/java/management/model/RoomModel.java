@@ -18,6 +18,7 @@ public class RoomModel {
     // resources 폴더 아래 rooms.txt 경로
     private static final String ROOM_FILE = "src/main/resources/rooms.txt";
 
+    // 메모리 상에 올려둘 강의실 리스트
     private final List<Room> rooms = new ArrayList<>();
 
     /**
@@ -38,10 +39,11 @@ public class RoomModel {
             return;
         }
         for (String line : Files.readAllLines(p)) {
-            if (line == null || line.isBlank()) continue;
+            if (line.isBlank()) continue;
             String[] f = line.split(",", 3);
-            if (f.length < 2) continue;  // 최소 ID, 상태 필요
-            String id = f[0].trim();
+            if (f.length < 2) continue;
+
+            String id     = f[0].trim();
             String status = f[1].trim();
             Room.Availability avail;
             String reason = "";
@@ -65,24 +67,36 @@ public class RoomModel {
     /**
      * 메모리상의 rooms 리스트를 읽기 전용으로 반환합니다.
      */
-    public List<Room> getAll() {
+    public List<Room> getRooms() {
         return Collections.unmodifiableList(rooms);
     }
 
     /**
-     * 특정 Room 객체의 상태를 변경한 뒤,
-     * rooms.txt 파일 전체를 덮어쓰기로 갱신합니다.
+     * 특정 강의실 ID에 대해 상태와 사유만 바꾸고 바로 파일에 저장합니다.
+     * @param roomId 변경할 강의실 ID
+     * @param avail  변경할 상태 (OPEN / CLOSED)
+     * @param reason CLOSED 상태일 때 사용할 사유 (OPEN 은 빈 문자열)
+     */
+    public void updateAvailability(String roomId, Room.Availability avail, String reason) throws IOException {
+        // 새 Room 객체를 만들어 기존 updateRoom 메서드 재사용
+        Room updated = new Room(roomId, avail, reason);
+        updateRoom(updated);
+    }
+
+    /**
+     * rooms 리스트의 해당 Room 객체를 통째로 교체한 뒤,
+     * rooms.txt 파일을 덮어쓰기 방식으로 갱신합니다.
      */
     public void updateRoom(Room updated) throws IOException {
-        // 메모리 리스트에 반영
+        // 1) 메모리상의 리스트 갱신
         for (int i = 0; i < rooms.size(); i++) {
             if (rooms.get(i).getRoomId().equals(updated.getRoomId())) {
                 rooms.set(i, updated);
                 break;
             }
         }
-        // 파일에 다시 쓰기
-        List<String> out = rooms.stream()
+        // 2) 파일에 다시 쓰기
+        List<String> outLines = rooms.stream()
             .map(r -> {
                 StringBuilder sb = new StringBuilder();
                 sb.append(r.getRoomId()).append(",");
@@ -100,9 +114,10 @@ public class RoomModel {
 
         Files.write(
             Paths.get(ROOM_FILE),
-            out,
+            outLines,
             StandardOpenOption.CREATE,
             StandardOpenOption.TRUNCATE_EXISTING
         );
     }
 }
+    

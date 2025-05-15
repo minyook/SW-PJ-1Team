@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package management.model;
 
 import java.time.DayOfWeek;
@@ -11,22 +7,44 @@ public class ScheduleEntry {
     private DayOfWeek day;
     private LocalTime startTime;
     private LocalTime endTime;
-    private boolean available;     // true=사용가능, false=불가능
-    private String reason;         // 불가능 사유
+    private boolean available;
+    private String reason;
 
-    public ScheduleEntry(DayOfWeek day, LocalTime start, LocalTime end,
+    // 새로 추가할 필드
+    private String courseName;
+    private String professorName;
+
+    // 기존 생성자 (가능하다면 Deprecated 처리)
+    public ScheduleEntry(DayOfWeek day, LocalTime startTime, LocalTime endTime,
                          boolean available, String reason) {
-        this.day = day;
-        this.startTime = start;
-        this.endTime = end;
-        this.available = available;
-        this.reason = reason;
+        this(day, startTime, endTime, available, reason, "", "");
     }
-    // --- getters / setters 생략 ---
-    public DayOfWeek getDay() { return day; }
-    public LocalTime getStartTime() { return startTime; }
-    public LocalTime getEndTime() { return endTime; }
-    public boolean isAvailable() { return available; }
-    public String getReason() { return reason; }
-}
 
+    // 새 생성자: 과목명·교수명 포함
+    public ScheduleEntry(DayOfWeek day,
+                         LocalTime startTime,
+                         LocalTime endTime,
+                         boolean available,
+                         String reason,
+                         String courseName,
+                         String professorName) {
+        this.day            = day;
+        this.startTime      = startTime;
+        this.endTime        = endTime;
+        this.available      = available;
+        this.reason         = reason;
+        this.courseName     = courseName;
+        this.professorName  = professorName;
+    }
+
+    // 기존 getter
+    public DayOfWeek getDay()            { return day; }
+    public LocalTime getStartTime()      { return startTime; }
+    public LocalTime getEndTime()        { return endTime; }
+    public boolean isAvailable()         { return available; }
+    public String getReason()            { return reason; }
+
+    // 새 getter
+    public String getCourseName()        { return courseName; }
+    public String getProfessorName()     { return professorName; }
+}

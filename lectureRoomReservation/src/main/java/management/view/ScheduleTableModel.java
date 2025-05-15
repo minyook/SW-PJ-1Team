@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  * 각 셀에는 차단 사유가 표시됩니다.
  */
 public class ScheduleTableModel extends AbstractTableModel {
-    private final String[] columns = { "시간", "월", "화", "수", "목", "금" };
+    private final String[] columns = { "시간", "월", "화", "수", "목", "금", "담당교수" };
     private final List<String> timeSlots;
     private final Map<DayOfWeek, Map<String, ScheduleEntry>> scheduleMap;
     private final DateTimeFormatter timeFmt = DateTimeFormatter.ofPattern("HH:mm");
@@ -63,17 +63,31 @@ public class ScheduleTableModel extends AbstractTableModel {
     @Override
     public Object getValueAt(int row, int col) {
         String slot = timeSlots.get(row);
+        // 0열: 시간
         if (col == 0) {
-            // 첫 번째 컬럼: 시간 슬롯
             return slot;
         }
-        // col 1=MONDAY, 2=TUESDAY, … 5=FRIDAY
-        DayOfWeek day = DayOfWeek.of(col);
-        ScheduleEntry e = scheduleMap.get(day).get(slot);
-        if (e == null) {
-            return "";
+        // 1~5열: 월~금 과목명
+        if (col >= 1 && col <= 5) {
+            DayOfWeek day = DayOfWeek.of(col);
+            ScheduleEntry e = scheduleMap.get(day).get(slot);
+            return (e == null) ? "" : e.getCourseName();    // 과목명
         }
-        // '사용 불가능'인 경우만 사유 표시
-        return e.isAvailable() ? "" : "불가: " + e.getReason();
+        // 6열: 담당교수 (해당 시간에 배정된 모든 교수님을 , 로 연결)
+        if (col == 6) {
+            StringBuilder profs = new StringBuilder();
+            for (int d = 1; d <= 5; d++) {
+                ScheduleEntry e = scheduleMap
+                    .get(DayOfWeek.of(d))
+                    .get(slot);
+                if (e != null) {
+                    if (profs.length() > 0) profs.append(", ");
+                    profs.append(e.getProfessorName());
+                }
+            }
+            return profs.toString();
+        }
+        return "";
     }
+
 }
