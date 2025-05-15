@@ -95,4 +95,11 @@ public class ReservationModel {
             StandardOpenOption.TRUNCATE_EXISTING
         );
     }
+    
+    /** 새로운 예약 추가 후 저장 */
+    public void addReservation(Reservation r) throws IOException {
+        list.add(r);
+        save();
+    }
+
 }
