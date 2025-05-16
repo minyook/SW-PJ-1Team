@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-package management.view;    // 실제 패키지명에 맞춰 변경
+package management.view;
 
 import java.awt.event.ActionListener;
 import javax.swing.event.ListSelectionListener;
@@ -47,7 +47,6 @@ public class AdminReservationFrame extends javax.swing.JFrame {
         refreshButton.addActionListener(l);
     }
     
-    // initComponents() 의 아래 쯤에 추가
     // ─── 강의실 차단/해제 버튼 리스너 등록 ──────────────────────────────────────────
     public void addBlockListener(ActionListener l) {
         blockButton.addActionListener(l);   // "차단하기" 버튼
