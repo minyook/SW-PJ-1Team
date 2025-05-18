@@ -23,7 +23,7 @@ public class ClientMain {
             UserModel model = new UserModel();
             new LoginController(model, view);
             view.setVisible(true);
-        });
+        });     
     }
 }
 

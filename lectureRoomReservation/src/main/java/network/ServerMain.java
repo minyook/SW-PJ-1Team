@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.atomic.AtomicInteger;
+import login.User;
 
 public class ServerMain {
     private static final int MAX_CLIENTS = 3;
@@ -64,8 +65,23 @@ public class ServerMain {
                 Request req = (Request) in.readObject();
 
                 if ("LOGIN".equals(req.getType())) {
+                    User u = (User) req.getData();
+                    String credentialKey = u.getUsername() + "," + u.getPassword(); // ID + PW 기준으로 식별
+                    
+                    synchronized (ClientManager.class) {
+                        if (ClientManager.isLoggedIn(credentialKey)) {
+                            out.writeObject(new Response(false, "이미 로그인 중인 사용자입니다.", null));
+                            continue;
+                        }
+
+                        ClientManager.addLogin(credentialKey);
+                    }
                     out.writeObject(new Response(true, "로그인 성공\n현재 접속자 수: " + ClientManager.getCount() + "명", null));
                 } else if ("DISCONNECT".equals(req.getType())) {
+                    User u = (User) req.getData();
+                    String credentialKey = u.getUsername() + "," + u.getPassword();
+                    ClientManager.removeLogin(credentialKey);  // 연결 해제
+                    
                     out.writeObject(new Response(true, "연결 종료", null));
                     break;
                 } else {
