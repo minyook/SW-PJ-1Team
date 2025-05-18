@@ -84,6 +84,25 @@ public class ReservationModel {
 
         return result;
     }
+    
+    public String checkRoomAvailable(String roomNumber) {
+    String path = "src/main/resources/rooms.txt";
+    try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+        String line;
+        while ((line = br.readLine()) != null) {
+            String[] parts = line.split(",", 2);
+            if (parts.length >= 2 && parts[0].equals(roomNumber)) {
+                String status = parts[1].trim();
+                if (status.equals("사용불가능")) {
+                    return "강의실 차단";
+                }
+            }
+        }
+    } catch (IOException e) {
+        System.out.println("rooms.txt 읽기 실패: " + e.getMessage());
+    }
+    return null; // null이면 사용 가능
+}
 
     private String getDayOfWeek(String dateStr) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");

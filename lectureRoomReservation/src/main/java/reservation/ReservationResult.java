@@ -11,6 +11,7 @@ package reservation;
 public enum ReservationResult {
     SUCCESS,
     TIME_OCCUPIED,
-    NOT_SELECTED,
+    NOT_SELECTED,    
+    ROOM_BLOCKED,
     ERROR
 }
