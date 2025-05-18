@@ -4,6 +4,10 @@
  */
 package timetable;
 
+import java.util.List;
+import java.util.Map;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 import reservation.ReservationMainFrame;
 
 /**
@@ -18,6 +22,34 @@ public class TimeTableFrame extends javax.swing.JFrame {
     public TimeTableFrame() {
         initComponents();
     }
+    
+    private void updateTimeTable(Map<String, List<String>> schedule) {
+    String[] days = { "월", "화", "수", "목", "금" };
+    String[] times = {
+        "09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
+        "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"
+    };
+
+    // 테이블 모델 가져오기
+    DefaultTableModel model = (DefaultTableModel) timeTable.getModel();
+
+    // 기존 테이블 초기화
+    model.setRowCount(0);
+
+    // 시간별 행을 생성
+    for (int i = 0; i < times.length; i++) {
+        Object[] row = new Object[days.length + 1];
+        row[0] = times[i];
+
+        for (int j = 0; j < days.length; j++) {
+            String day = days[j];
+            List<String> entries = schedule.get(day);
+            row[j + 1] = (entries != null) ? entries.get(i) : "";
+        }
+
+        model.addRow(row);
+    }
+}
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -62,6 +94,11 @@ public class TimeTableFrame extends javax.swing.JFrame {
         lectureRoomComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "908호", "911호", "912호", "913호", "914호", "915호", "916호", "918호" }));
 
         searchBtn.setText("조회");
+        searchBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchBtnActionPerformed(evt);
+            }
+        });
 
         timeTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -163,6 +200,31 @@ public class TimeTableFrame extends javax.swing.JFrame {
         ReservationMainFrame RMF = new ReservationMainFrame();
         RMF.setVisible(true);
     }//GEN-LAST:event_backBtnActionPerformed
+
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+        // TODO add your handling code here:
+        // 1. 콤보박스 값 가져오기
+    String selectedMonth = (String) monthComboBox.getSelectedItem();
+    String selectedWeek = (String) weekComboBox.getSelectedItem();
+    String selectedRoom = (String) lectureRoomComboBox.getSelectedItem();
+
+    // 2. 유효성 검사
+    if (selectedMonth == null || selectedWeek == null || selectedRoom == null) {
+        JOptionPane.showMessageDialog(this, "모든 항목을 선택해 주세요.");
+        return;
+    }
+
+    // 3. 월, 주차 숫자로 변환
+    int month = Integer.parseInt(selectedMonth.replaceAll("[^0-9]", ""));
+    int week = Integer.parseInt(selectedWeek.replaceAll("[^0-9]", ""));
+
+    // 4. 시간표 조회
+    TimeTableController controller = new TimeTableController();
+    Map<String, List<String>> schedule = controller.getWeeklySchedule(month, week, selectedRoom);
+
+    // 5. 테이블에 출력
+    updateTimeTable(schedule);
+    }//GEN-LAST:event_searchBtnActionPerformed
 
     /**
      * @param args the command line arguments
