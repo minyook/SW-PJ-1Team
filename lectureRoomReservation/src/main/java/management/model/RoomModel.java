@@ -13,55 +13,58 @@ import java.util.stream.Collectors;
 /**
  * rooms.txt 파일로부터 강의실 목록을 로드하고,
  * 변경된 강의실 상태를 다시 파일에 저장하는 모델 클래스.
+ * 테스트 할 때 실제 파일 변경을 방지하기 위해 skipLoad 옵션을 제공합니다.
  */
 public class RoomModel {
-    // resources 폴더 아래 rooms.txt 경로
+    // 기본 리소스 파일 경로
     private static final String ROOM_FILE = "src/main/resources/rooms.txt";
 
-    // 메모리 상에 올려둘 강의실 리스트
+    // skipLoad 플래그
+    private final boolean skipLoad;
+
+    // 메모리용 강의실 리스트
     private final List<Room> rooms = new ArrayList<>();
 
     /**
-     * 생성 시 즉시 파일을 읽어서 rooms 리스트를 초기화.
+     * 기본 생성자: 실제 파일 I/O 수행.
      */
     public RoomModel() throws IOException {
+        this(false);
         load();
     }
+
+    /**
+     * 테스트용 생성자: 파일 읽기/쓰기 건너뛰기.
+     */
     protected RoomModel(boolean skipLoad) {
-        // 아무 작업도 하지 않음: rooms는 빈 ArrayList 그대로
+        this.skipLoad = skipLoad;
     }
+
     /**
      * rooms.txt 파일을 읽어 rooms 리스트를 채웁니다.
-     * 라인이 비어 있거나 필드가 부족하면 건너뜁니다.
+     * skipLoad==true이면 파일을 읽지 않습니다.
      */
     private void load() throws IOException {
+        if (skipLoad) return;
         rooms.clear();
         Path p = Paths.get(ROOM_FILE);
-        if (!Files.exists(p)) {
-            return;
-        }
+        if (!Files.exists(p)) return;
         for (String line : Files.readAllLines(p)) {
             if (line.isBlank()) continue;
             String[] f = line.split(",", 3);
             if (f.length < 2) continue;
-
-            String id     = f[0].trim();
+            String id = f[0].trim();
             String status = f[1].trim();
             Room.Availability avail;
             String reason = "";
-
             if ("사용가능".equals(status)) {
                 avail = Room.Availability.OPEN;
             } else if ("사용불가능".equals(status)) {
                 avail = Room.Availability.CLOSED;
-                if (f.length > 2) {
-                    reason = f[2].trim();
-                }
+                if (f.length > 2) reason = f[2].trim();
             } else {
-                // 알 수 없는 상태면 기본 OPEN
                 avail = Room.Availability.OPEN;
             }
-
             rooms.add(new Room(id, avail, reason));
         }
     }
@@ -74,30 +77,33 @@ public class RoomModel {
     }
 
     /**
-     * 특정 강의실 ID에 대해 상태와 사유만 바꾸고 바로 파일에 저장합니다.
-     * @param roomId 변경할 강의실 ID
-     * @param avail  변경할 상태 (OPEN / CLOSED)
-     * @param reason CLOSED 상태일 때 사용할 사유 (OPEN 은 빈 문자열)
+     * 테스트용 헬퍼: 메모리 리스트에 직접 추가합니다.
+     */
+    public void addRoom(Room r) {
+        rooms.add(r);
+    }
+
+    /**
+     * 특정 강의실 상태와 사유 변경 후 저장.
+     * skipLoad==true이면 파일 쓰지 않고 메모리만 변경합니다.
      */
     public void updateAvailability(String roomId, Room.Availability avail, String reason) throws IOException {
-        // 새 Room 객체를 만들어 기존 updateRoom 메서드 재사용
         Room updated = new Room(roomId, avail, reason);
         updateRoom(updated);
     }
 
     /**
-     * rooms 리스트의 해당 Room 객체를 통째로 교체한 뒤,
-     * rooms.txt 파일을 덮어쓰기 방식으로 갱신합니다.
+     * rooms 리스트에서 대체 후 전체 덮어쓰기.
+     * skipLoad==true 이면 파일 쓰지 않습니다.
      */
     public void updateRoom(Room updated) throws IOException {
-        // 1) 메모리상의 리스트 갱신
         for (int i = 0; i < rooms.size(); i++) {
             if (rooms.get(i).getRoomId().equals(updated.getRoomId())) {
                 rooms.set(i, updated);
                 break;
             }
         }
-        // 2) 파일에 다시 쓰기
+        if (skipLoad) return;
         List<String> outLines = rooms.stream()
             .map(r -> {
                 StringBuilder sb = new StringBuilder();
@@ -113,7 +119,6 @@ public class RoomModel {
                 return sb.toString();
             })
             .collect(Collectors.toList());
-
         Files.write(
             Paths.get(ROOM_FILE),
             outLines,
@@ -121,8 +126,4 @@ public class RoomModel {
             StandardOpenOption.TRUNCATE_EXISTING
         );
     }
-    public void addRoom(Room r) {
-        rooms.add(r);
-    }
 }
-    
