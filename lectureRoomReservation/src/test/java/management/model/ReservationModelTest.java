@@ -61,7 +61,7 @@ public class ReservationModelTest {
 
         // 1) 새 예약 추가
         Reservation r = model.addReservation(
-            "R101",
+            "911",
             "2025-05-16",
             "09:00~09:50",
             "홍길동"
@@ -94,7 +94,7 @@ public class ReservationModelTest {
 
         // 새 예약 추가
         Reservation r = model.addReservation(
-            "R101",
+            "911",
             "2025-05-16",
             "09:00~09:50",
             "홍길동"

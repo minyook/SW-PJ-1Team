@@ -14,6 +14,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.event.ListSelectionListener;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -21,30 +22,40 @@ class AdminRoomControllerTest {
 
     // ─── 테스트 전용 스텁 뷰 ───────────────────────────────────
     static class StubView extends AdminReservationFrame {
-        List<Room> lastRooms;
-        ActionListener blockListener;
-        ActionListener registerListener;
-        int selectedRoomIndex;
+    // 기존 필드
+    List<Room> lastRooms;
+    ActionListener blockListener;
+    ActionListener registerListener;
+    int selectedRoomIndex;
 
-        @Override
-        public void setRoomTable(List<Room> rooms) {
-            this.lastRooms = rooms;
-        }
+    // 새로 추가: 컨트롤러가 등록하는 리스너를 저장할 필드
+    ListSelectionListener roomSelectionListener;
 
-        @Override
-        public void addBlockListener(ActionListener l) {
-            this.blockListener = l;
-        }
+    @Override
+    public void setRoomTable(List<Room> rooms) {
+        this.lastRooms = rooms;
+    }
 
-        @Override
-        public void addRegisterScheduleListener(ActionListener l) {
-            this.registerListener = l;
-        }
+    @Override
+    public void addRoomSelectionListener(ListSelectionListener l) {
+        // 컨트롤러가 여기에 선택 리스너를 붙여줄 때 저장해 둡니다.
+        this.roomSelectionListener = l;
+    }
 
-        @Override
-        public int getSelectedRoomIndex() {
-            return selectedRoomIndex;
-        }
+    @Override
+    public void addBlockListener(ActionListener l) {
+        this.blockListener = l;
+    }
+
+    @Override
+    public void addRegisterScheduleListener(ActionListener l) {
+        this.registerListener = l;
+    }
+
+    @Override
+    public int getSelectedRoomIndex() {
+        return selectedRoomIndex;
+    }
 
         @Override
         public DayOfWeek getSelectedDay() {
@@ -130,16 +141,19 @@ class AdminRoomControllerTest {
 
     @Test
     void testBlockButton() {
-        // init()에서 setRoomTable이 호출됐는지 확인
+        // 1) 컨트롤러 생성 후 setRoomTable 호출 확인
         assertNotNull(view.lastRooms);
         assertEquals(1, view.lastRooms.size());
-        assertEquals("R1", view.lastRooms.get(0).getRoomId());
 
-        // 차단 리스너 실행
+        // 2) 선택 인덱스를 0으로 세팅
         view.selectedRoomIndex = 0;
+        // 3) 컨트롤러가 붙여놓은 ListSelectionListener 직접 실행
+        view.roomSelectionListener.valueChanged(null);
+
+        // 4) 이제 blockListener를 실행하면 currentRoomId가 설정된 상태
         view.blockListener.actionPerformed(null);
 
-        // 모델에 정확히 CLOSED 호출됐는지 검증
+        // 5) 모델이 호출됐는지 검증
         assertTrue(roomModel.updateCalled);
         assertEquals("R1", roomModel.lastRoomId);
         assertEquals(Room.Availability.CLOSED, roomModel.lastAvail);
@@ -149,6 +163,9 @@ class AdminRoomControllerTest {
     @Test
     void testRegisterScheduleButton() {
         view.selectedRoomIndex = 0;
+        view.roomSelectionListener.valueChanged(null);
+
+        // 등록 버튼 클릭 시뮬레이션
         view.registerListener.actionPerformed(null);
 
         ScheduleEntry e = schedModel.lastEntry;

@@ -28,17 +28,17 @@ class RoomModelTest {
     @Test
     void testUpdateAvailability() throws IOException {
         // 1) 테스트용 헬퍼로 방 하나 추가
-        Room r1 = new Room("B202", Room.Availability.OPEN, "");
+        Room r1 = new Room("912", Room.Availability.OPEN, "");
         model.addRoom(r1);
 
         // 2) updateAvailability 호출 (CLOSED, reason)
-        model.updateAvailability("B202", Room.Availability.CLOSED, "점검");
+        model.updateAvailability("912", Room.Availability.CLOSED, "점검");
 
         // 3) 결과 검증
         List<Room> rooms = model.getRooms();
         assertEquals(1, rooms.size(), "리스트 크기는 1이어야 합니다");
         Room r2 = rooms.get(0);
-        assertEquals("B202",                    r2.getRoomId());
+        assertEquals("912",                    r2.getRoomId());
         assertEquals(Room.Availability.CLOSED,  r2.getAvailability());
         assertEquals("점검",                     r2.getCloseReason());
     }
@@ -46,18 +46,18 @@ class RoomModelTest {
     @Test
     void testUpdateRoom() throws IOException {
         // 1) 헬퍼로 방 추가
-        Room original = new Room("A101", Room.Availability.OPEN, "");
+        Room original = new Room("911", Room.Availability.OPEN, "");
         model.addRoom(original);
 
         // 2) 새 Room 객체를 만들어 updateRoom 호출
-        Room updated = new Room("A101", Room.Availability.CLOSED, "교체");
+        Room updated = new Room("911", Room.Availability.CLOSED, "교체");
         model.updateRoom(updated);
 
         // 3) 메모리 리스트 확인
         List<Room> rooms = model.getRooms();
         assertEquals(1, rooms.size());
         Room r3 = rooms.get(0);
-        assertEquals("A101",                     r3.getRoomId());
+        assertEquals("911",                     r3.getRoomId());
         assertEquals(Room.Availability.CLOSED,   r3.getAvailability());
         assertEquals("교체",                     r3.getCloseReason());
     }

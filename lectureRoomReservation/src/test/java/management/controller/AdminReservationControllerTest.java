@@ -9,7 +9,9 @@ import org.junit.jupiter.api.Test;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,123 +20,141 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AdminReservationControllerTest {
 
-    /**
-     * 테스트용 StubView: 뷰 인터랙션을 캡처
-     */
+    // ─── Stub View ─────────────────────────────────────────────────
     static class StubView extends AdminReservationFrame {
-        List<Reservation> lastList;
-        ActionListener approveL;
-        ActionListener rejectL;
-        ActionListener refreshL;
-        int selectedIdx;
-        Reservation selRes;
+        List<Reservation> lastTableData;
+        ActionListener approveListener;
+        ActionListener rejectListener;
+        ActionListener refreshListener;
+
+        // 선택된 인덱스 (테스트에서 세팅)
+        int selectedIndex = -1;
 
         @Override
         public void setReservationTable(List<Reservation> data) {
-            lastList = data;
+            // 컨트롤러가 호출해 준 데이터를 저장해 둡니다.
+            lastTableData = new ArrayList<>(data);
         }
 
         @Override
         public void addApproveListener(ActionListener l) {
-            approveL = l;
+            this.approveListener = l;
         }
 
         @Override
         public void addRejectListener(ActionListener l) {
-            rejectL = l;
+            this.rejectListener = l;
         }
 
         @Override
         public void addRefreshListener(ActionListener l) {
-            refreshL = l;
+            this.refreshListener = l;
         }
 
         @Override
         public int getSelectedReservationIndex() {
-            return selectedIdx;
+            return selectedIndex;
         }
 
         @Override
         public Reservation getReservationAt(int idx) {
-            return selRes;
+            return lastTableData.get(idx);
         }
     }
 
-    /**
-     * 테스트용 StubModel: 상태 변경 호출만 기록
-     */
+    // ─── Stub Model ────────────────────────────────────────────────
     static class StubModel extends ReservationModel {
-        boolean called;
-        int updatedId;
-        Reservation.Status updatedStatus;
+        List<Reservation> internal = new ArrayList<>();
+        boolean updateCalled = false;
+        Reservation lastUpdated;
+        Reservation.Status lastStatus;
 
         public StubModel() throws IOException {
-            super(true); // skip load
+            super(true);  // load(skip)
         }
 
         @Override
-        public void updateStatus(Reservation r, Reservation.Status newStatus) {
-            called = true;
-            updatedId = r.getId();
-            updatedStatus = newStatus;
+        public List<Reservation> getAll() {
+            // 컨트롤러가 refreshTable() 할 때 쓰이는 데이터
+            return internal.stream().collect(Collectors.toList());
+        }
+
+        @Override
+        public void updateStatus(Reservation r, Reservation.Status newStatus) throws IOException {
+            updateCalled = true;
+            lastUpdated = r;
+            lastStatus  = newStatus;
+            // 모델 내부 상태 변경까지 흉내
+            r.setStatus(newStatus);
         }
     }
 
-    private StubView view;
-    private StubModel model;
-    private AdminReservationController ctrl;
+    StubView view;
+    StubModel model;
+    AdminReservationController ctrl;
 
-    @BeforeEach
+    @org.junit.jupiter.api.BeforeEach
     void setUp() throws IOException {
-        view = new StubView();
+        view  = new StubView();
         model = new StubModel();
-        // 주입용 생성자 필요: AdminReservationController(AdminReservationFrame, ReservationModel)
-        ctrl = new AdminReservationController(view, model);
+
+        // 사전에 몇 개의 Reservation 객체를 넣어 둡니다.
+        // 기본 생성자(id, date, st, et, roomId, user, status)
+        Reservation a = new Reservation(1, null, null, null, "R1", "Alice", Reservation.Status.PENDING);
+        Reservation b = new Reservation(2, null, null, null, "R2", "Bob",   Reservation.Status.PENDING);
+        model.internal.add(a);
+        model.internal.add(b);
+
+        // DI 생성자 사용
+        ctrl  = new AdminReservationController(view, model);
     }
 
-    @Test
-    void testInitialLoadCallsSetReservationTable() {
-        // init() 안에서 refreshTable -> setReservationTable 호출됨
-        assertNotNull(view.lastList, "초기 로드 시 setReservationTable 호출 필요");
+    @org.junit.jupiter.api.Test
+    void testInitialRefreshLoadsTable() {
+        // 생성자에서 init() → refreshTable() 이 불리면서 setReservationTable 호출됨
+        assertNotNull(view.lastTableData, "초기화 시 테이블이 로드되어야 한다");
+        assertEquals(2, view.lastTableData.size());
+        assertEquals("Alice", view.lastTableData.get(0).getUserName());
     }
 
-    @Test
-    void testApproveListener() {
-        // 뷰에 선택 및 반환값 설정
-        Reservation r = new Reservation(1, null, null, null, "R101", "User", Reservation.Status.PENDING);
-        view.selectedIdx = 0;
-        view.selRes = r;
+    @org.junit.jupiter.api.Test
+    void testApproveCallsModelAndRefreshes() throws Exception {
+        // 사용자 A(인덱스 0)를 선택한 것처럼 설정
+        view.selectedIndex = 0;
 
-        // 리스너 등록 확인
-        assertNotNull(view.approveL, "addApproveListener가 호출되어야 합니다");
+        // 컨트롤러가 붙여둔 approve 리스너 실행
+        view.approveListener.actionPerformed(null);
 
-        // 이벤트 실행
-        view.approveL.actionPerformed(null);
+        // 모델 updateStatus 가 호출되었는지
+        assertTrue(model.updateCalled, "updateStatus가 호출되어야 한다");
+        assertEquals(model.lastUpdated, view.getReservationAt(0));
+        assertEquals(Reservation.Status.APPROVED, model.lastStatus);
 
-        // 모델 메서드 호출 검증
-        assertTrue(model.called, "모델의 updateStatus가 호출되어야 합니다");
-        assertEquals(1, model.updatedId, "업데이트된 예약 ID가 일치해야 합니다");
-        assertEquals(Reservation.Status.APPROVED, model.updatedStatus, "상태가 APPROVED여야 합니다");
+        // 그리고 refreshTable()이 다시 불려서 뷰의 lastTableData 가 갱신됨
+        assertEquals(Reservation.Status.APPROVED, view.getReservationAt(0).getStatus());
     }
 
-    @Test
-    void testRejectListener() {
-        Reservation r = new Reservation(2, null, null, null, "R102", "User2", Reservation.Status.PENDING);
-        view.selectedIdx = 0;
-        view.selRes = r;
-        assertNotNull(view.rejectL);
+    @org.junit.jupiter.api.Test
+    void testRejectCallsModelAndRefreshes() throws Exception {
+        // 사용자 B(인덱스 1)를 선택
+        view.selectedIndex = 1;
 
-        view.rejectL.actionPerformed(null);
+        view.rejectListener.actionPerformed(null);
 
-        assertTrue(model.called);
-        assertEquals(2, model.updatedId);
-        assertEquals(Reservation.Status.REJECTED, model.updatedStatus);
+        assertTrue(model.updateCalled, "거절(updateStatus) 호출 확인");
+        assertEquals(model.lastUpdated, view.getReservationAt(1));
+        assertEquals(Reservation.Status.REJECTED, model.lastStatus);
     }
 
-    @Test
-    void testRefreshListener() {
-        assertNotNull(view.refreshL, "addRefreshListener가 호출되어야 합니다");
-        view.refreshL.actionPerformed(null);
-        assertNotNull(view.lastList, "refresh 시에도 setReservationTable 호출 필요");
+    @org.junit.jupiter.api.Test
+    void testRefreshButtonReloadsTable() {
+        // clear 상태
+        view.lastTableData = null;
+
+        // 컨트롤러가 붙여둔 refresh 리스너 실행
+        view.refreshListener.actionPerformed(null);
+
+        assertNotNull(view.lastTableData, "새로고침 시 테이블 재로딩");
+        assertEquals(2, view.lastTableData.size());
     }
 }
