@@ -5,9 +5,11 @@
 package management.view;
 
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import javax.swing.event.ListSelectionListener;
 import java.time.DayOfWeek;
 import java.util.List;
+import javax.swing.JOptionPane;
 
 import management.model.Reservation;
 import management.model.Room;
@@ -18,6 +20,8 @@ import management.view.RoomTableModel;
 import management.view.ScheduleTableModel;
 import management.controller.AdminReservationController;
 import management.controller.AdminRoomController;
+import network.Client;
+import network.Request;
 
 
 /**
@@ -29,9 +33,26 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     /**
      * Creates new form AdminReservationFrame
      */
-    public AdminReservationFrame() {
-        initComponents();
-    }
+        private AdminReservationController reservationController;
+        private AdminRoomController       roomController;
+
+        public AdminReservationFrame() {
+            initComponents();  // (1) UI 컴포넌트 초기화
+
+            // (2) 두 컨트롤러를 this 프레임에 DI
+            try {
+                reservationController = new AdminReservationController(this);
+                roomController        = new AdminRoomController(this);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(
+                    this,
+                    "화면 초기화 중 오류가 발생했습니다:\n" + ex.getMessage(),
+                    "오류",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
     
     // ─── 예약 목록 버튼 리스너 등록 ──────────────────────────────────────────
     // 승인
@@ -164,6 +185,7 @@ public class AdminReservationFrame extends javax.swing.JFrame {
         refreshButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         reservationTable = new javax.swing.JTable();
+        logoutButton = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         roomTable = new javax.swing.JTable();
@@ -219,37 +241,51 @@ public class AdminReservationFrame extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(reservationTable);
 
+        logoutButton.setText("로그아웃");
+        logoutButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                logoutButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(307, Short.MAX_VALUE)
-                .addComponent(approveButton)
-                .addGap(92, 92, 92)
-                .addComponent(rejectButton)
-                .addGap(89, 89, 89)
-                .addComponent(refreshButton)
-                .addGap(199, 199, 199))
-            .addComponent(jScrollPane1)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 909, Short.MAX_VALUE)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(357, 357, 357)
-                .addComponent(jLabel1)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(247, 247, 247)
+                        .addComponent(approveButton)
+                        .addGap(92, 92, 92)
+                        .addComponent(rejectButton)
+                        .addGap(89, 89, 89)
+                        .addComponent(refreshButton))
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGap(411, 411, 411)
+                        .addComponent(jLabel1)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addComponent(logoutButton)
+                .addGap(31, 31, 31))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addGap(59, 59, 59)
+                .addGap(18, 18, 18)
+                .addComponent(logoutButton)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel1)
                 .addGap(36, 36, 36)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 216, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(refreshButton)
                     .addComponent(rejectButton)
                     .addComponent(approveButton))
-                .addGap(41, 41, 41))
+                .addGap(58, 58, 58))
         );
 
         jTabbedPane1.addTab("예약 목록", jPanel1);
@@ -410,11 +446,10 @@ public class AdminReservationFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(classField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(1, 1, 1)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane5, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
                 .addComponent(registerButton)
                 .addGap(20, 20, 20))
         );
@@ -457,6 +492,13 @@ public class AdminReservationFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+        Client.send(new Request("DISCONNECT", null));
+        network.Client.disconnect();
+    }//GEN-LAST:event_logoutButtonActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -495,6 +537,7 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     private java.awt.Label label4;
     private java.awt.Label label5;
     private java.awt.Label label6;
+    private javax.swing.JButton logoutButton;
     private java.awt.TextField professorField1;
     private java.awt.TextField reasonField;
     private javax.swing.JButton refreshButton;

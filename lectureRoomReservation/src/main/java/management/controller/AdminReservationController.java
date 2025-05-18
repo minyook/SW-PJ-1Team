@@ -59,9 +59,10 @@ public class AdminReservationController {
     }
 
     private void refreshTable() {
-        List<Reservation> all = model.getAll();
-        view.setReservationTable(all);
-    }
+    List<Reservation> all = model.getAll();
+    System.out.println("[CTRL] refreshTable() → 모델에 " + all.size() + "개 예약");
+    view.setReservationTable(all);
+}
 
     private void showError(Exception ex) {
         JOptionPane.showMessageDialog(view, ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);
