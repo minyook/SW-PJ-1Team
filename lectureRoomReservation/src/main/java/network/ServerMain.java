@@ -27,12 +27,25 @@ public class ServerMain {
             ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream in = new ObjectInputStream(socket.getInputStream())
         ) {
-            Request req = (Request) in.readObject();
-            Response res = RequestHandler.handle(req);
-            out.writeObject(res);
+            boolean connected = false;
 
-            if (res.isSuccess() && "LOGIN".equals(req.getType())) {
-                ClientManager.clientConnected();
+            while (true) {
+                Request req = (Request) in.readObject();
+
+                if ("LOGIN".equals(req.getType())) {
+                    if (ClientManager.getCount() >= 3) {
+                        out.writeObject(new Response(false, "접속 인원이 초과되었습니다.", null));
+                    } else {
+                        ClientManager.clientConnected();
+                        connected = true;
+                        out.writeObject(new Response(true, "로그인 성공\n현재 접속자 수: " + ClientManager.getCount() + "명", null));
+                    }
+                } else if ("DISCONNECT".equals(req.getType())) {
+                    out.writeObject(new Response(true, "연결 종료", null));
+                    break;
+                } else {
+                    out.writeObject(new Response(false, "지원하지 않는 요청입니다.", null));
+                }
             }
         } catch (Exception e) {
             System.err.println("[클라이언트 처리 오류] " + e.getMessage());
@@ -42,4 +55,3 @@ public class ServerMain {
         }
     }
 }
-

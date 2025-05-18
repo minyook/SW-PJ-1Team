@@ -18,4 +18,8 @@ public class ClientManager {
         int current = count.decrementAndGet();
         System.out.println("[접속자 수] -1 → 현재 " + current + "명");
     }
+    
+    public static int getCount() {
+        return count.get();
+    }
 }

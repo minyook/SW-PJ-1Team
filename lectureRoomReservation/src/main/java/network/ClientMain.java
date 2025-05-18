@@ -1,20 +1,29 @@
 
 package network;
 
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import login.LoginController;
+import login.LoginView;
+import login.UserModel;
+
 /**
  *
  * @author rbcks
  */
 public class ClientMain {
     public static void main(String[] args) {
-        if (Client.connect()) {
-            Request loginRequest = new Request("LOGIN", "testUser");
-            Response res = Client.send(loginRequest);
-
-            System.out.println("[서버 응답] " + res.getMessage());
-
-            Client.disconnect();
+        SwingUtilities.invokeLater(() -> {
+            try {
+            UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
         }
+            LoginView view = new LoginView();
+            UserModel model = new UserModel();
+            new LoginController(model, view);
+            view.setVisible(true);
+        });
     }
 }
 

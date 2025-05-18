@@ -13,13 +13,18 @@ import reservation.ReservationResult;
 public class ReservationController {
 
     private ReservationModel model;
-
+     private boolean showDialog = true;
+     
     public ReservationController() {
         this.model = new ReservationModel();
+    }
+        public void setShowDialog(boolean show) {
+        this.showDialog = show;
     }
 
     // View에서 호출되는 메서드
     public List<RoomStatus> loadTimetable(String year, String month, String day, String roomNumber) {
+        
         // yyyy-MM-dd 형식으로 조합
         String date = year + "-" + month + "-" + day;
         // 사용불가 여부 먼저 확인
@@ -48,7 +53,10 @@ public class ReservationController {
         //  사용 불가능 강의실 검사
     String reason = model.checkRoomAvailable(room);
     if (reason != null) {
-        JOptionPane.showMessageDialog(null, "해당 강의실은 예약할 수 없습니다.\n사유: " + reason);
+        if (showDialog) {
+            JOptionPane.showMessageDialog(null, "해당 강의실은 예약할 수 없습니다.\n사유: " + reason);
+        }
+
         return ReservationResult.ROOM_BLOCKED;
     }
 

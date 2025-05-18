@@ -83,9 +83,11 @@ public void testRoomBlockedReservation() {
     String name = "테스트사용자";
 
     ReservationController controller = new ReservationController();
+    controller.setShowDialog(false);
     ReservationResult result = controller.processReservationRequest(date, time, room, name);
 
     assertEquals(ReservationResult.ROOM_BLOCKED, result);  // 강의실 차단이어야함.
+    
 }
 
 
