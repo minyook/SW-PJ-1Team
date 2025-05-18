@@ -15,9 +15,16 @@ public class AdminReservationController {
     private final AdminReservationFrame view;
     private final ReservationModel model;
 
-    public AdminReservationController(AdminReservationFrame view) throws IOException {
+    public AdminReservationController(
+        AdminReservationFrame view,
+        ReservationModel model
+    ) throws IOException {
         this.view  = view;
-        this.model = new ReservationModel();
+        this.model = model;
+        init();
+    }
+    public AdminReservationController(AdminReservationFrame view) throws IOException {
+        this(view, new ReservationModel());
         init();
     }
 

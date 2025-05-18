@@ -28,6 +28,9 @@ public class Reservation {
         this.userName = userName;
         this.status = status;
     }
+    public int getReservationId() {
+        return id;
+    }
     // --- getters / setters 생략 ---
     public int getId() { return id; }
     public LocalDate getDate() { return date; }

@@ -31,6 +31,17 @@ public class AdminRoomController {
         this.schedModel = new ScheduleModel();
         init();
     }
+    
+    public AdminRoomController(
+            AdminReservationFrame view,
+            RoomModel roomModel,
+            ScheduleModel schedModel
+    ) throws IOException {
+        this.view      = view;
+        this.roomModel = roomModel;
+        this.schedModel= schedModel;
+        init();
+    }
 
     private void init() {
         // 1) 강의실 목록 초기 로드

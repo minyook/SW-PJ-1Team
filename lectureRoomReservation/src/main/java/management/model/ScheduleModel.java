@@ -19,7 +19,12 @@ import java.util.stream.Collectors;
 public class ScheduleModel {
     private static final String RES_DIR      = "src/main/resources/";
     private static final String SCHEDULE_FMT = RES_DIR + "schedule_%s.txt";
-
+    
+    public ScheduleModel() { }
+    protected ScheduleModel(boolean skipLoad) {
+        // 아무 것도 안 함
+    }
+    
     public List<ScheduleEntry> load(String roomId) throws IOException {
         Path p = Paths.get(String.format(SCHEDULE_FMT, roomId));
         if (!Files.exists(p)) return List.of();
@@ -38,7 +43,7 @@ public class ScheduleModel {
         }
     }
 
-    private ScheduleEntry parseLine(String ln) {
+    protected ScheduleEntry parseLine(String ln) {
         // 먼저 comma split
         String[] f = ln.split(",", -1);
         DayOfWeek day  = parseDay(f[0]);
@@ -61,7 +66,7 @@ public class ScheduleModel {
         }
     }
 
-    private String toLine(ScheduleEntry e) {
+    protected String toLine(ScheduleEntry e) {
         String dayK = switch (e.getDay()) {
             case MONDAY    -> "월";
             case TUESDAY   -> "화";

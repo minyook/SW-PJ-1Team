@@ -27,7 +27,9 @@ public class RoomModel {
     public RoomModel() throws IOException {
         load();
     }
-
+    protected RoomModel(boolean skipLoad) {
+        // 아무 작업도 하지 않음: rooms는 빈 ArrayList 그대로
+    }
     /**
      * rooms.txt 파일을 읽어 rooms 리스트를 채웁니다.
      * 라인이 비어 있거나 필드가 부족하면 건너뜁니다.
@@ -118,6 +120,9 @@ public class RoomModel {
             StandardOpenOption.CREATE,
             StandardOpenOption.TRUNCATE_EXISTING
         );
+    }
+    public void addRoom(Room r) {
+        rooms.add(r);
     }
 }
     
