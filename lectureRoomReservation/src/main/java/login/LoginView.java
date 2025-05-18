@@ -21,6 +21,13 @@ public class LoginView extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
     }
+    // LoginView.java 에 추가
+public void resetFields() {
+    ID.setText("");
+    Password.setText("");
+    ID.requestFocus();
+}
+
     public String getUsername() {
     return ID.getText().trim(); // 
 }
@@ -28,7 +35,7 @@ public class LoginView extends javax.swing.JFrame {
     public String getPassword() {
     return new String(Password.getPassword()).trim();
 }
-
+    
     public void showMessage(String message) {
         JOptionPane.showMessageDialog(this, message);
     }

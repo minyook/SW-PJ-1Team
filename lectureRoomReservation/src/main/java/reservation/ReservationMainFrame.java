@@ -146,11 +146,9 @@ public class ReservationMainFrame extends javax.swing.JFrame {
 
     private void logOutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logOutBtnActionPerformed
         // TODO add your handling code here:
+        this.dispose();
         Client.send(new Request("DISCONNECT", null));
         network.Client.disconnect();
-        this.dispose();
-        LoginView lv = new LoginView();
-        lv.setVisible(true);
         
     }//GEN-LAST:event_logOutBtnActionPerformed
 

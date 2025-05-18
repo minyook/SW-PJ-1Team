@@ -49,8 +49,10 @@ public class LoginController {
 
         // 4. 서버 응답 확인
         if (!response.isSuccess()) {
-            view.showMessage(response.getMessage());
+            JOptionPane.showMessageDialog(null, response.getMessage(), "접속 제한", JOptionPane.WARNING_MESSAGE);
             Client.disconnect();
+            
+            //view.resetFields();
             return;
         }
 
