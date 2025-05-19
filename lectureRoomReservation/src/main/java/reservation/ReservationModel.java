@@ -142,5 +142,70 @@ public class ReservationModel {
             return false;
             }
     }
+    
+    //예약 조회
+    public List<Reservation> getReservationsByUser(String userId) {
+        List<Reservation> list = new ArrayList<>();
+        String path = "src/main/resources/reservation_data.txt";
 
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 5 && parts[3].trim().equals(userId)) {
+                    Reservation r = new Reservation();
+                    r.setDate(parts[0].trim());
+                    r.setTime(parts[1].trim());
+                    r.setRoomNumber(parts[2].trim());
+                    r.setUserId(parts[3].trim());
+                    r.setStatus(parts[4].trim());
+
+                // 예약 ID는 임시로 date+time+room으로 구성
+                String reservationId = parts[0].trim() + "_" + parts[1].trim() + "_" + parts[2].trim();
+                r.setReservationId(reservationId);
+
+                list.add(r);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+    
+    //예약 취소
+    public void cancelReservation(String reservationId) {
+        String path = "src/main/resources/reservation_data.txt";
+        List<String> newLines = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 5) {
+                    String currentId = parts[0].trim() + "_" + parts[1].trim() + "_" + parts[2].trim();
+                    if (currentId.equals(reservationId)) {
+                        parts[4] = "취소됨";  // 상태 변경
+                        line = String.join(",", parts);
+                    }
+                }
+                newLines.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // 파일 덮어쓰기
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(path))) {
+            for (String l : newLines) {
+                bw.write(l);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+   
 }

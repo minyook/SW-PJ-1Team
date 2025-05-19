@@ -23,6 +23,14 @@ public class ReservationMainFrame extends javax.swing.JFrame {
         initComponents();
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
     }
+    
+    private String userId; 
+
+    public ReservationMainFrame(String userId) {
+        this.userId = userId;
+        initComponents();
+    }
+
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -140,7 +148,7 @@ public class ReservationMainFrame extends javax.swing.JFrame {
     private void myReservationBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_myReservationBtnActionPerformed
         // TODO add your handling code here:
         this.dispose();
-        MyReservationFrame MRF = new MyReservationFrame();
+        MyReservationFrame MRF = new MyReservationFrame(userId);
         MRF.setVisible(true);
     }//GEN-LAST:event_myReservationBtnActionPerformed
 
