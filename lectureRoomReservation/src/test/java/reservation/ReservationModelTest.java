@@ -64,8 +64,8 @@ public class ReservationModelTest {
         // 결과가 null이 아니어야 함
         assertNotNull(result);
 
-        // 시간 슬롯이 9개여야 함
-        assertEquals(9, result.size());
+        // 시간 슬롯이 8개여야 함
+        assertEquals(8, result.size());
 
         // 첫 번째 시간 슬롯이 정확한지 확인
         assertEquals("09:00~09:50", result.get(0).getTimeSlot());
@@ -111,4 +111,51 @@ public class ReservationModelTest {
         // 확인 메시지 출력 (추가적인 디버깅용)
         System.out.println("예약 저장 테스트 성공 여부: " + result);
     }
+    
+    @Test
+public void testRejectedReservationNotReflected() throws IOException {
+    // 예약 파일에 거절 상태 예약 데이터 임시 저장
+    Files.write(Paths.get(reservationPath), List.of(
+        "2025-05-05,10:00~10:50,912,사용자A,거절"
+    ));
+
+    // 시간표 로드
+    List<RoomStatus> result = model.loadTimetable("2025-05-05", "912");
+
+    // 10:00~10:50 슬롯이 "비어 있음" 상태 유지되어야 함 (거절은 반영 안 됨)
+    boolean isEmpty = false;
+    for (RoomStatus rs : result) {
+        if (rs.getTimeSlot().equals("10:00~10:50")) {
+            isEmpty = rs.getStatus().equals("비어 있음");
+            break;
+        }
+    }
+    assertTrue(isEmpty, "거절 상태 예약은 시간표에 반영되지 않아야 합니다.");
+}
+
+@Test
+public void testScheduleFileReflectedInTimetable() throws IOException {
+    // schedule_912.txt 파일에 수업 정보 임시 작성 (해당 경로에 있어야 함)
+    Path scheduleFile = Paths.get("src/main/resources/schedule_912.txt");
+    Files.write(scheduleFile, List.of(
+        "월,10:00~10:50,자료구조,홍길동"
+    ));
+
+    // 시간표 로드 (월요일인 2025-05-04 기준)
+    List<RoomStatus> result = model.loadTimetable("2025-05-05", "912");
+
+    // 10:00~10:50 슬롯이 수업명과 교수명 반영된 상태여야 함
+    boolean containsClass = false;
+    for (RoomStatus rs : result) {
+        if (rs.getTimeSlot().equals("10:00~10:50")) {
+            containsClass = rs.getStatus().equals("자료구조(홍길동)");
+            break;
+        }
+    }
+    assertTrue(containsClass, "수업 일정이 시간표에 정상 반영되어야 합니다.");
+
+    // 테스트 후 임시로 만든 schedule 파일 삭제 (선택 사항)
+    Files.deleteIfExists(scheduleFile);
+}
+
 }

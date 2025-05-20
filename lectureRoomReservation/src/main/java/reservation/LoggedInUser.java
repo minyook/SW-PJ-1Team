@@ -18,7 +18,7 @@ public class LoggedInUser {
         this.name = name;
         this.role = role;
     }
-
+    
     public String getUserId() { return userId; }
     public String getName()   { return name; }
     public String getRole()   { return role; }

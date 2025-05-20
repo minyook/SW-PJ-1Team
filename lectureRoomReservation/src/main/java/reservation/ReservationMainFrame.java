@@ -5,6 +5,7 @@
 package reservation;
 
 import login.LoginView;
+import login.User;
 import myreservation.MyReservationFrame;
 import network.Client;
 import network.Request;
@@ -156,8 +157,7 @@ public class ReservationMainFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         this.dispose();
         Client.send(new Request("DISCONNECT", null));
-        network.Client.disconnect();
-        
+        network.Client.disconnect();   
     }//GEN-LAST:event_logOutBtnActionPerformed
 
     /**

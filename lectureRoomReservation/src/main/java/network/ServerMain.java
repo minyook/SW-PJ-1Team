@@ -1,9 +1,5 @@
 package network;
 
-/**
- *
- * @author limmi
- */
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -40,13 +36,11 @@ public class ServerMain {
                     int waitNum = waitingClients.incrementAndGet();
                     wasWaiting = true;
                     System.out.println("[대기 인원] +1 → 현재 " + waitNum + "명");
-                    
-                    //먼저 응답 전송
+
                     out.writeObject(new Response(false, "접속 인원이 초과되었습니다. 현재 대기 인원: " + waitNum + "명", null));
                     out.flush();
-                    
-                    //잠깐 대기 후 소켓 종료
-                    Thread.sleep(200); // 클라이언트가 응답을 받을 시간 확보
+
+                    Thread.sleep(200); // 클라이언트가 응답 받을 시간 확보
                     socket.close(); // 강제 종료
                     return;
                 }
@@ -65,25 +59,14 @@ public class ServerMain {
                 Request req = (Request) in.readObject();
 
                 if ("LOGIN".equals(req.getType())) {
-                    User u = (User) req.getData();
-                    String credentialKey = u.getUsername() + "," + u.getPassword(); // ID + PW 기준으로 식별
-                    
-                    synchronized (ClientManager.class) {
-                        if (ClientManager.isLoggedIn(credentialKey)) {
-                            out.writeObject(new Response(false, "이미 로그인 중인 사용자입니다.", null));
-                            continue;
-                        }
-
-                        ClientManager.addLogin(credentialKey);
-                    }
+                    // 로그인 요청 처리
                     out.writeObject(new Response(true, "로그인 성공\n현재 접속자 수: " + ClientManager.getCount() + "명", null));
+
                 } else if ("DISCONNECT".equals(req.getType())) {
-                    User u = (User) req.getData();
-                    String credentialKey = u.getUsername() + "," + u.getPassword();
-                    ClientManager.removeLogin(credentialKey);  // 연결 해제
-                    
+                    // 연결 종료 요청 처리
                     out.writeObject(new Response(true, "연결 종료", null));
                     break;
+                    
                 } else {
                     out.writeObject(new Response(false, "지원하지 않는 요청입니다.", null));
                 }
