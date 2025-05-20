@@ -1,106 +1,114 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/UnitTests/JUnit5TestClass.java to edit this template
- */
 package reservation;
 
-import java.util.List;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import java.io.*;
+import java.nio.file.*;
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- *
- * @author rbcks
- */
 public class ReservationModelTest {
-    private static ReservationModel rm1;  // 전체 테스트에서 공용
-    private ReservationModel rm2;         // 각 테스트마다 새로 생성
-    public ReservationModelTest() {
-    }
-    
-    @BeforeAll
-    public static void setUpClass() {
-        System.out.println("setUpClass()");
-        rm1= new ReservationModel();
-    }
-    
-    @AfterAll
-    public static void tearDownClass() {
-        System.out.println("tearDownClass()");
-    }
-    
+
+    private Path backupReservationFile;
+    private Path backupRoomFile;
+    private Path testReservationFile;
+    private Path testRoomFile;
+
+    private final String reservationPath = "src/main/resources/reservation_data.txt";
+    private final String roomPath = "src/main/resources/rooms.txt";
+
+    private ReservationModel model;
+
     @BeforeEach
-    public void setUp() {
-        System.out.println("setUp()");
-        rm2 = new ReservationModel(); // 각 테스트 전에 새로 생성
+    public void setUp() throws IOException {
+        // 테스트 전에 기존 파일을 백업해 둠
+        backupReservationFile = Files.createTempFile("backup_reservation", ".txt");
+        backupRoomFile = Files.createTempFile("backup_rooms", ".txt");
+        Files.copy(Paths.get(reservationPath), backupReservationFile, StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(Paths.get(roomPath), backupRoomFile, StandardCopyOption.REPLACE_EXISTING);
+
+        // rooms.txt에 테스트용 데이터 기록: 911은 사용가능으로 지정
+        Files.write(Paths.get(roomPath), List.of("911,사용가능"));
+
+        // reservation_data.txt는 비워둠
+        Files.write(Paths.get(reservationPath), new ArrayList<>());
+
+        // 테스트용 모델 생성
+        model = new ReservationModel();
     }
-    
+
     @AfterEach
-    public void tearDown() {
-        System.out.println("tearDown()");
+    public void tearDown() throws IOException {
+        // 테스트가 끝난 후 원래 파일 복구
+        Files.copy(backupReservationFile, Paths.get(reservationPath), StandardCopyOption.REPLACE_EXISTING);
+        Files.copy(backupRoomFile, Paths.get(roomPath), StandardCopyOption.REPLACE_EXISTING);
+
+        // 임시 백업 파일 삭제
+        Files.deleteIfExists(backupReservationFile);
+        Files.deleteIfExists(backupRoomFile);
     }
 
     /**
-     * Test of loadTimetable method, of class ReservationModel.
+     * loadTimetable() 메서드가 정상적으로 시간대별 상태를 로드하는지 테스트.
+     * 이 테스트는 911호의 2025-05-05 날짜 시간표를 불러올 때,
+     * 모든 시간대가 "비어 있음" 상태로 초기화되는지 확인함.
      */
     @Test
     public void testLoadTimetable() {
-        System.out.println("loadTimetable");
         String date = "2025-05-05";
         String roomNumber = "911";
-        ReservationModel instance = new ReservationModel();
-        //List<RoomStatus> expResult = null;
-        List<RoomStatus> result = instance.loadTimetable(date, roomNumber);
-        // 시간대 개수 확인
-        assertNotNull(result);
-        assertEquals(8, result.size()); // 예: 시간 슬롯이 8개라고 가정할 때
-        
-        // 첫 번째 시간대가 비어 있음인지 확인
-        assertEquals("09:00~09:50", result.get(0).getTimeSlot());
-        assertNotNull(result.get(0).getStatus());
 
+        // 시간표 로드
+        List<RoomStatus> result = model.loadTimetable(date, roomNumber);
+
+        // 결과가 null이 아니어야 함
+        assertNotNull(result);
+
+        // 시간 슬롯이 9개여야 함
+        assertEquals(9, result.size());
+
+        // 첫 번째 시간 슬롯이 정확한지 확인
+        assertEquals("09:00~09:50", result.get(0).getTimeSlot());
+
+        // 해당 시간의 상태가 null이 아닌지 확인
+        assertNotNull(result.get(0).getStatus());
     }
 
     /**
-     * Test of checkAvailability method, of class ReservationModel.
+     * checkAvailability() 메서드가 특정 시간대에 예약 가능 여부를 올바르게 판단하는지 테스트.
+     * 현재 reservation_data.txt에 아무 데이터도 없으므로,
+     * 어떤 시간대를 조회하더라도 예약 가능(true)해야 한다.
      */
     @Test
     public void testCheckAvailability() {
-        System.out.println("checkAvailability");
         String date = "2025-05-05";
         String time = "10:00~10:50";
         String room = "911";
-        ReservationModel instance = new ReservationModel();
-        //boolean expResult = false;
-         // 시간표에 해당 시간이 비어 있다고 가정
-        boolean result = instance.checkAvailability(date, time, room);
-        //assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        // 예상 결과는 true (예약이나 수업 없음)
+
+        // 해당 시간대가 비어있는지 확인 (true 기대)
+        boolean result = model.checkAvailability(date, time, room);
         assertTrue(result);
     }
 
     /**
-     * Test of saveReservation method, of class ReservationModel.
+     * saveReservation() 메서드가 예약 정보를 텍스트 파일에 정상적으로 저장하는지 테스트.
+     * 저장 후 true를 반환하면 성공으로 간주.
      */
     @Test
     public void testSaveReservation() {
-        System.out.println("saveReservation");
         String date = "2025-05-05";
         String time = "11:00~11:50";
         String room = "911";
         String name = "테스트사용자";
         String status = "예약 대기";
-        ReservationModel instance = new ReservationModel();
-        //boolean expResult = false;
-        boolean result = instance.saveReservation(date, time, room, name, status);
-        assertTrue(result); // 저장이 성공했는지 확인
-        // 확인 메시지
+
+        // 예약 저장 시도
+        boolean result = model.saveReservation(date, time, room, name, status);
+
+        // 저장이 성공했는지 확인
+        assertTrue(result);
+
+        // 확인 메시지 출력 (추가적인 디버깅용)
         System.out.println("예약 저장 테스트 성공 여부: " + result);
     }
-    
 }

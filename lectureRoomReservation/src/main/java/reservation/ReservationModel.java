@@ -32,7 +32,7 @@ public class ReservationModel {
 
         // 3. 수업 시간표 반영
         String schedulePath = "src/main/resources/schedule_" + roomNumber + ".txt";
-        try (BufferedReader br = new BufferedReader(new FileReader(schedulePath))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(schedulePath), "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -54,7 +54,7 @@ public class ReservationModel {
 
         // 4. 예약 상태 반영
         String reservationPath = "src/main/resources/reservation_data.txt";
-        try (BufferedReader br = new BufferedReader(new FileReader(reservationPath))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(reservationPath), "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 
