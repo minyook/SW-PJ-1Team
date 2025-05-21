@@ -97,7 +97,7 @@ public class ReservationFrame extends javax.swing.JFrame {
         String day = (String) dayComboBox.getSelectedItem();
         String date = year + "-" + month + "-" + day;
         String room = lastSelectedRoom; // ← 버튼 클릭 시 저장해둔 변수
-        String name = "이규찬";          // ← 나중에 로그인 연동 가능
+        String name = session.currentUser.getName();          // ← 나중에 로그인 연동 가능
 
         // 3. 컨트롤러에 예약 요청
         ReservationResult result = controller.processReservationRequest(date, time, room, name);

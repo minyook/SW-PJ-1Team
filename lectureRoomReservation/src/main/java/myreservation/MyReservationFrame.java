@@ -5,18 +5,28 @@
 package myreservation;
 
 import reservation.ReservationMainFrame;
+import reservation.ReservationModel;
+import myreservation.MyReservationController;
 
 /**
  *
  * @author rbcks
  */
 public class MyReservationFrame extends javax.swing.JFrame {
+    
+    private String userId;
 
     /**
      * Creates new form MyReservationFrame
      */
     public MyReservationFrame() {
         initComponents();
+    }
+    
+    public MyReservationFrame(String userId) {
+        this.userId = userId;
+        initComponents();
+        new MyReservationController(this, userId);
     }
 
     /**
@@ -119,44 +129,26 @@ public class MyReservationFrame extends javax.swing.JFrame {
     private void backBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backBtnActionPerformed
         // TODO add your handling code here:
         this.dispose();
-        ReservationMainFrame RMF = new ReservationMainFrame();
-        RMF.setVisible(true);
+        new ReservationMainFrame(userId).setVisible(true); // 로그인 사용자 정보 유지
     }//GEN-LAST:event_backBtnActionPerformed
 
     /**
      * @param args the command line arguments
      */
+    
+    /* 테스트용
     public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MyReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MyReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MyReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MyReservationFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new MyReservationFrame().setVisible(true);
-            }
+                new MyReservationFrame("이규찬").setVisible(true);
+            } ////임시 테스트로 이규찬 넣음.
         });
-    }
+    } */
+
+public javax.swing.JTable getReservationTable() { return myReservationTable; }
+public javax.swing.JButton getDeleteButton() { return deleteBtn; }
+public javax.swing.JButton getChangeButton() { return changeBtn; }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backBtn;

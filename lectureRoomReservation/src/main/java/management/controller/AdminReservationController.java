@@ -15,9 +15,16 @@ public class AdminReservationController {
     private final AdminReservationFrame view;
     private final ReservationModel model;
 
-    public AdminReservationController(AdminReservationFrame view) throws IOException {
+    public AdminReservationController(
+        AdminReservationFrame view,
+        ReservationModel model
+    ) throws IOException {
         this.view  = view;
-        this.model = new ReservationModel();
+        this.model = model;
+        init();
+    }
+    public AdminReservationController(AdminReservationFrame view) throws IOException {
+        this(view, new ReservationModel());
         init();
     }
 
@@ -52,9 +59,10 @@ public class AdminReservationController {
     }
 
     private void refreshTable() {
-        List<Reservation> all = model.getAll();
-        view.setReservationTable(all);
-    }
+    List<Reservation> all = model.getAll();
+    System.out.println("[CTRL] refreshTable() → 모델에 " + all.size() + "개 예약");
+    view.setReservationTable(all);
+}
 
     private void showError(Exception ex) {
         JOptionPane.showMessageDialog(view, ex.getMessage(), "오류", JOptionPane.ERROR_MESSAGE);

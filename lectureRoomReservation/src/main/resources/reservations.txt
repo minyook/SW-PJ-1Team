@@ -1,2 +1,0 @@
-R001,A101,홍길동,REJECTED,test
-R002,B202,김철수,APPROVED,관리자 승인

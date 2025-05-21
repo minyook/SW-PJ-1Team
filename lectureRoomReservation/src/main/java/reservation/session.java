@@ -8,10 +8,6 @@ package reservation;
  *
  * @author rbcks
  */
-public enum ReservationResult {
-    SUCCESS,
-    TIME_OCCUPIED,
-    NOT_SELECTED,    
-    ROOM_BLOCKED,
-    ERROR
+public class session {
+    public static LoggedInUser currentUser;
 }
