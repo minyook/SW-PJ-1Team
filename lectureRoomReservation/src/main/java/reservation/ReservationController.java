@@ -13,11 +13,15 @@ import reservation.ReservationResult;
 public class ReservationController {
 
     private ReservationModel model;
-     private boolean showDialog = true;
+    private boolean showDialog = true;
      
     public ReservationController() {
         this.model = new ReservationModel();
     }
+    public ReservationController(ReservationModel model) {
+        this.model = model;
+    }
+
         public void setShowDialog(boolean show) {
         this.showDialog = show;
     }
