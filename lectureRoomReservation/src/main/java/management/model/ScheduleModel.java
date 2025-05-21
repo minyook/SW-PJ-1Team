@@ -17,31 +17,36 @@ import java.util.stream.Collectors;
 // ... 생략 imports ...
 
 public class ScheduleModel {
-    private static final String RES_DIR      = "src/main/resources/";
-    private static final String SCHEDULE_FMT = RES_DIR + "schedule_%s.txt";
-    
-    public ScheduleModel() { }
-    protected ScheduleModel(boolean skipLoad) {
-        // 아무 것도 안 함
+    // 기존 resources 폴더 대신
+    private static final Path DATA_DIR = Paths.get("data", "schedules");
+    private static final String SCHEDULE_FMT = "schedule_%s.txt";
+
+    public ScheduleModel() throws IOException {
+        // 첫 실행 때 데이터 폴더가 없으면 생성
+        Files.createDirectories(DATA_DIR);
     }
     
-    public List<ScheduleEntry> load(String roomId) throws IOException {
-        Path p = Paths.get(String.format(SCHEDULE_FMT, roomId));
-        if (!Files.exists(p)) return List.of();
+    protected ScheduleModel(boolean skipLoad) {
+        // 아무 것도 하지 않음 → load() 호출을 막기만 하면 됩니다
+    }
 
+    public List<ScheduleEntry> load(String roomId) throws IOException {
+        Path p = DATA_DIR.resolve(String.format(SCHEDULE_FMT, roomId));
+        if (!Files.exists(p)) return List.of();
         return Files.readAllLines(p).stream()
-            .map(this::parseLine)
-            .collect(Collectors.toList());
+                        .map(this::parseLine)
+                        .collect(Collectors.toList());
     }
 
     public void saveAppend(String roomId, ScheduleEntry e) throws IOException {
-        Path p = Paths.get(String.format(SCHEDULE_FMT, roomId));
+        Path p = DATA_DIR.resolve(String.format(SCHEDULE_FMT, roomId));
         if (!Files.exists(p)) Files.createFile(p);
         try (BufferedWriter w = Files.newBufferedWriter(p, StandardOpenOption.APPEND)) {
             w.write(toLine(e));
             w.newLine();
         }
     }
+    
 
     protected ScheduleEntry parseLine(String ln) {
         // 먼저 comma split
