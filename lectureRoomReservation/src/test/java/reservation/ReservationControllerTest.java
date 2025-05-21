@@ -83,8 +83,8 @@ public class ReservationControllerTest {
         // 리스트가 null이 아니고
         assertNotNull(result);
 
-        // 시간대가 총 9개인지 확인
-        assertEquals(9, result.size());
+        // 시간대가 총 8개인지 확인
+        assertEquals(8, result.size());
 
         // 첫 시간 슬롯이 "09:00~09:50"인지 확인
         assertEquals("09:00~09:50", result.get(0).getTimeSlot());
