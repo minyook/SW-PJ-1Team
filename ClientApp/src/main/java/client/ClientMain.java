@@ -10,7 +10,7 @@ import javax.swing.SwingUtilities;
 public class ClientMain {
     public static ObjectOutputStream out;
     public static ObjectInputStream in;
-
+ 
     public static void main(String[] args) {
         try {
             Scanner scanner = new Scanner(System.in);

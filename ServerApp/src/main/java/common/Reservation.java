@@ -13,13 +13,18 @@ public class Reservation implements Serializable {
     private String username;
     private String status;
     
-    public Reservation(String reservationId, String date, String time, String roomNumber, String username, String status) {
+    public Reservation(String reservationId,
+                       String date,
+                       String time,
+                       String roomNumber,
+                       String username,
+                       String status) {
         this.reservationId = reservationId;
-        this.date = date;
-        this.time = time;
-        this.roomNumber = roomNumber;
-        this.username = username;
-        this.status = status;
+        this.date          = date;
+        this.time          = time;
+        this.roomNumber    = roomNumber;
+        this.username      = username;
+        this.status        = status;
     }
 
     // Getter & Setter
@@ -35,13 +40,23 @@ public class Reservation implements Serializable {
     public String getRoomNumber() { return roomNumber; }
     public void setRoomNumber(String roomNumber) { this.roomNumber = roomNumber; }
 
-    public String getUserName() { return username; }
-    public void setUserId(String userId) { this.username = username; }
+    // ▶ 로그인한 사용자 아이디를 꺼낼 getter/setter 추가
+    public String getUserId() {
+        return username;
+    }
+    public void setUserId(String userId) {
+        this.username = userId;
+    }
+
+    // ▶ 기존 getUserName()는 username 필드를 그대로 반환하도록 유지
+    public String getUserName() {
+        return username;
+    }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
     
-     @Override
+    @Override
     public String toString() {
         return date + "," + time + "," + roomNumber + "," + username + "," + status;
     }
