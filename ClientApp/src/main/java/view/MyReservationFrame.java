@@ -82,6 +82,11 @@ public class MyReservationFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(myReservationTable);
 
         deleteBtn.setText("예약 취소");
+        deleteBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteBtnActionPerformed(evt);
+            }
+        });
 
         changeBtn.setText("예약 변경");
 
@@ -148,6 +153,10 @@ public class MyReservationFrame extends javax.swing.JFrame {
         this.dispose();
         new ReservationMainFrame(user).setVisible(true); // 로그인 사용자 정보 유지
     }//GEN-LAST:event_backBtnActionPerformed
+
+    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_deleteBtnActionPerformed
 
     /**
      * @param args the command line arguments

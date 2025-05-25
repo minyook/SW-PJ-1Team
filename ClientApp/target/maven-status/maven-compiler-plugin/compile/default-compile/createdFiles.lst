@@ -30,6 +30,7 @@ view\TimeTableFrame$1.class
 common\RoomStatus.class
 controller\AdminRoomController.class
 controller\ReservationController.class
+view\MyReservationFrame$2.class
 controller\RegisterController.class
 view\ReservationMainFrame$3.class
 view\RegisterView$1.class
