@@ -13,6 +13,10 @@ import common.RoomStatus;
 import view.ReservationMainFrame;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -87,6 +91,30 @@ public class ReservationFrame extends javax.swing.JFrame {
         }
     }
 
+    // ReservationFrame 클래스 내부에 추가
+    private List<Room> fetchRoomsFromServer() {
+        try {
+            Message req = new Message();
+            req.setDomain("room");
+            req.setType(RequestType.LOAD_ROOMS);
+
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+
+            Message res = (Message) ClientMain.in.readObject();
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "강의실 목록 불러오기 실패: " + res.getError());
+                return Collections.emptyList();
+            }
+            // 서버는 payload 에 List<Room> 을 담아 보냄
+            return (List<Room>) res.getPayload();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "서버 통신 오류: " + e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     private List<RoomStatus> fetchScheduleFromServer(String date, String roomNumber) {
         try {
             Map<String, String> payload = new HashMap<>();
@@ -129,7 +157,26 @@ public class ReservationFrame extends javax.swing.JFrame {
 
     private void handleRoomButtonClick(String roomNumber) {
         lastSelectedRoom = roomNumber;
-
+        // 0) 서버에서 강의실 상태 조회
+        List<Room> rooms = fetchRoomsFromServer();
+        Room room = rooms.stream()
+                .filter(r -> r.getRoomId().equals(roomNumber))
+                .findFirst()
+                .orElse(null);
+        if (room == null) {
+            JOptionPane.showMessageDialog(this, "해당 강의실 정보를 찾을 수 없습니다.");
+            return;
+        }
+        if (room.getAvailability() == Room.Availability.CLOSED) {
+            // CLOSED 일 때만 차단 메시지 띄우고 중단
+            JOptionPane.showMessageDialog(
+                    this,
+                    "해당 강의실은 차단되었습니다.\n사유: " + room.getCloseReason(),
+                    "강의실 차단 안내",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
         // 1) 선택된 날짜 → 요일 계산
         String year = (String) yearComboBox.getSelectedItem();
         String month = (String) monthComboBox.getSelectedItem();
