@@ -4,6 +4,9 @@
  */
 package view;
 
+import client.ClientMain;
+import common.Message;
+import common.RequestType;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import javax.swing.event.ListSelectionListener;
@@ -507,10 +510,19 @@ public class AdminReservationFrame extends javax.swing.JFrame {
 
     private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
         // TODO add your handling code here:
-        // 현재 창 닫기
-        this.dispose();
+        try {
+            Message req = new Message();
+            req.setDomain("user");
+            req.setType(RequestType.DISCONNECT);
+            req.setPayload(null);
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        // 로그인 창 열기
+        // 2) 현재 창 닫고 로그인 화면으로 돌아가기
+        this.dispose();
         new LoginView().setVisible(true);
     }//GEN-LAST:event_logoutButtonActionPerformed
 

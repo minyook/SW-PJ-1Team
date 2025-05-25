@@ -1,5 +1,6 @@
 package controller;
 
+import client.ClientMain;
 import client.SocketClient;
 import common.Message;
 import common.RequestType;
@@ -10,76 +11,73 @@ import view.AdminReservationFrame;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 
 public class LoginController {
     private final LoginView view;
-
     public LoginController(LoginView view) {
         this.view = view;
         view.setLoginAction(new LoginAction());
     }
 
-    class LoginAction implements ActionListener {
+    private class LoginAction implements ActionListener {
+        @Override
         public void actionPerformed(ActionEvent e) {
-            String username = view.getUsername();
-            String password = view.getPassword();
+            view.setLoginEnabled(false);
+            view.showMessage("로그인 중…");
 
-            if (username.isEmpty() || password.isEmpty()) {
-                view.showMessage("아이디와 비밀번호를 입력하세요.");
-                return;
-            }
+            new SwingWorker<Message, String>() {
+                @Override
+                protected Message doInBackground() throws Exception {
+                    // --- 로그인 요청 보내기 ---
+                    Message req = new Message();
+                    req.setDomain("user");
+                    req.setType(RequestType.LOGIN);
+                    req.setPayload(new User(view.getUsername(), view.getPassword()));
+                    ClientMain.out.writeObject(req);
+                    ClientMain.out.flush();
 
-            try {
-                Message req = new Message();
-                req.setDomain("user");
-                req.setType(RequestType.LOGIN);
-                req.setPayload(new User(username, password));
-
-                Message res = SocketClient.send(req);
-                if (res.getError() == null) {
-                    User user = (User) res.getPayload();
-                    String role = user.getRole() == null ? "" : user.getRole().trim();
-
-                    view.showMessage(user.getName() + "님 환영합니다! (역할: " + role + ")");
-
-                    switch (role) {
-                        case "s", "p" -> new ReservationMainFrame(user).setVisible(true);
-                        case "a" -> new AdminReservationFrame(user).setVisible(true);
-                        default -> view.showMessage("알 수 없는 역할입니다: [" + role + "]");
+                    // --- 서버 응답 반복 읽기 ---
+                    while (!isCancelled()) {
+                        Message resp = SocketClient.send(req);
+                        if (resp.getError() != null && resp.getError().contains("대기열")) {
+                            System.out.println("📤 로그인 대기중");
+                            SwingUtilities.invokeLater(() ->
+                                view.showMessage(resp.getError())
+                            );
+                            Thread.sleep(200);
+                            continue;
+                        }
+                        return resp;
                     }
-
-                    view.dispose();
-                } else {
-                    view.showMessage("로그인 실패: " + res.getError());
-                    view.resetFields();
+                    // 취소된 경우
+                    Message cancelled = new Message();
+                    cancelled.setError("취소됨");
+                    return cancelled;
                 }
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                view.showMessage("서버 통신 오류: " + ex.getMessage());
-            }
+                @Override
+                protected void done() {
+                    view.setLoginEnabled(true);
+                    if (isCancelled()) return;
+                    try {
+                        Message res = get();
+                        if (res.getError() != null) {
+                            view.showMessage("❌ 로그인 실패: " + res.getError());
+                            view.resetFields();
+                        } else {
+                            User user = (User) res.getPayload();
+                            view.showMessage("✅ 로그인 성공: " + user.getUsername());
+                            new ReservationMainFrame(user).setVisible(true);
+                            view.dispose();
+                        }
+                    } catch (Exception ex) {
+                        view.showMessage("서버 통신 오류: " + ex.getMessage());
+                    }
+                }
+            }.execute();
         }
-    }
-
-    public User login(String id, String pw) {
-        try {
-            User loginUser = new User(id, pw, "", "");
-
-            Message req = new Message();
-            req.setDomain("user");
-            req.setType(RequestType.LOGIN);
-            req.setPayload(loginUser);
-
-            Message res = SocketClient.send(req);
-
-            if (res.getError() == null) {
-                return (User) res.getPayload();
-            } else {
-                System.out.println("로그인 실패: " + res.getError());
-            }
-        } catch (Exception e) {
-            System.out.println("서버 오류: " + e.getMessage());
-        }
-        return null;
     }
 }

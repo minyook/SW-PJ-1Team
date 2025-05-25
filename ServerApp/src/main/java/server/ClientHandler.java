@@ -43,13 +43,31 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
+        boolean slotAcquired = false;
         try {
+            // 스트림 초기화
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
-            in = new ObjectInputStream(socket.getInputStream());
-
+            in  = new ObjectInputStream(socket.getInputStream());
             System.out.println("🔵 클라이언트 스트림 연결됨: " + socket.getInetAddress());
             ensureRoomDataInitialized();
+
+            // 1) busy-wait: MAX_ACTIVE 이하가 될 때까지 대기
+            while (Server.activeCount.get() >= Server.MAX_ACTIVE) {
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    break;
+                }
+            }
+
+            // 2) 슬롯 획득
+            slotAcquired = true;
+            int now = Server.activeCount.incrementAndGet();
+            System.out.println("✅ 슬롯 획득: 현재 활성 클라이언트 수 = " + now);
+
+            // 3) 요청 처리 루프
             while (true) {
                 try {
                     Message msg = (Message) in.readObject();
@@ -59,10 +77,10 @@ public class ClientHandler extends Thread {
                     response.setDomain(msg.getDomain());
                     response.setType(msg.getType());
 
+                    // 메시지 타입별 분기 처리
                     if (msg.getType() == RequestType.LOGIN) {
                         User requestUser = (User) msg.getPayload();
                         User found = findUser(requestUser.getUsername(), requestUser.getPassword());
-
                         if (found != null) {
                             response.setPayload(found);
                             System.out.println("🔐 로그인 성공: " + found.getUsername());
@@ -70,24 +88,26 @@ public class ClientHandler extends Thread {
                             response.setError("아이디 또는 비밀번호가 일치하지 않습니다.");
                             System.out.println("❌ 로그인 실패");
                         }
-
+                    } // run() 안 메시지 분기 처리 중에
+                    else if (msg.getType() == RequestType.DISCONNECT) {
+                        // 클라이언트가 직접 연결 종료 의사를 밝힘
+                        response.setPayload("DISCONNECTED");
+                        out.writeObject(response);
+                        out.flush();
+                        // break; -> finally 로 넘어가서 slot 반환
+                        break;
                     } else if (msg.getType() == RequestType.REGISTER) {
                         User newUser = (User) msg.getPayload();
-
                         if (checkUserExists(newUser.getUsername())) {
                             response.setError("이미 존재하는 ID입니다.");
+                        } else if (saveUser(newUser)) {
+                            response.setPayload("회원가입 완료");
+                            System.out.println("✅ 신규 회원 등록됨: " + newUser.getUsername());
                         } else {
-                            if (saveUser(newUser)) {
-                                response.setPayload("회원가입 완료");
-                                System.out.println("✅ 신규 회원 등록됨: " + newUser.getUsername());
-                            } else {
-                                response.setError("회원가입 저장 중 오류 발생");
-                            }
+                            response.setError("회원가입 저장 중 오류 발생");
                         }
-
                     } else if (msg.getType() == RequestType.RESERVE) {
                         Reservation r = (Reservation) msg.getPayload();
-
                         if (isTimeSlotTaken(r)) {
                             response.setPayload("중복");
                         } else {
@@ -95,84 +115,49 @@ public class ClientHandler extends Thread {
                             response.setPayload("성공");
                             System.out.println("✅ 예약 저장됨: " + r.getUserName() + " - " + r.getDate() + " " + r.getTime());
                         }
-
                     } else if (msg.getType() == RequestType.LOAD_TIMETABLE) {
-                        Map<String, String> info = (Map<String, String>) msg.getPayload();
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<String,String> info = (java.util.Map<String,String>) msg.getPayload();
                         String date = info.get("date");
                         String room = info.get("room");
-
-                        List<RoomStatus> statusList = loadTimeTable(date, room);
-
-                        response.setDomain("timetable");
-                        response.setType(RequestType.LOAD_TIMETABLE);
+                        java.util.List<RoomStatus> statusList = loadTimeTable(date, room);
                         response.setPayload(statusList);
-
                     } else if (msg.getType() == RequestType.LOAD_SCHEDULE_FILE) {
                         String roomNumber = (String) msg.getPayload();
-                        List<String> scheduleLines = loadRoomSchedule(roomNumber);
-
-                        response.setDomain("schedule");
-                        response.setType(RequestType.LOAD_SCHEDULE_FILE);
+                        java.util.List<String> scheduleLines = loadRoomSchedule(roomNumber);
                         response.setPayload(scheduleLines);
-
                     } else if (msg.getType() == RequestType.LOAD_MY_RESERVATIONS) {
-                        String username = (String) msg.getPayload(); // ✅ null 여부 로그 찍기
-                        System.out.println("📥 예약 목록 요청 (ID): " + username);
-
-                        List<Reservation> list = loadReservationsByUserId(username);
-                        System.out.println("📤 예약 수: " + list.size());
-
-                        response.setDomain("reservation");
-                        response.setType(RequestType.LOAD_MY_RESERVATIONS);
+                        String username = (String) msg.getPayload();
+                        java.util.List<Reservation> list = loadReservationsByUserId(username);
                         response.setPayload(list);
                     } else if (msg.getType() == RequestType.LOAD_ALL_RESERVATIONS) {
-                        List<Reservation> list = loadAllReservations();
-
-                        response.setDomain("admin");
-                        response.setType(RequestType.LOAD_ALL_RESERVATIONS);
-                        response.setPayload(list);
+                        java.util.List<Reservation> all = loadAllReservations();
+                        response.setPayload(all);
                     } else if (msg.getType() == RequestType.UPDATE) {
-                        Map<String, String> info = (Map<String, String>) msg.getPayload();
-                        String id = info.get("id");
-                        String newStatus = info.get("status");
-
-                        boolean success = updateReservationStatus(id, newStatus);
-                        response.setPayload(success ? "OK" : "FAIL");
+                        @SuppressWarnings("unchecked")
+                        java.util.Map<String,String> info = (java.util.Map<String,String>) msg.getPayload();
+                        boolean success = updateReservationStatus(info.get("id"), info.get("status"));
+                        response.setPayload(success?"OK":"FAIL");
                     } else if (msg.getType() == RequestType.LOAD_ROOMS) {
-                        List<Room> rooms = loadRooms();
-                        response.setDomain("room");
-                        response.setType(RequestType.LOAD_ROOMS);
+                        java.util.List<Room> rooms = loadRooms();
                         response.setPayload(rooms);
                     } else if (msg.getType() == RequestType.UPDATE_ROOM_STATUS) {
                         Room updatedRoom = (Room) msg.getPayload();
-                        boolean success = updateRoomStatus(updatedRoom);
-
-                        response.setDomain("room");
-                        response.setType(RequestType.UPDATE_ROOM_STATUS);
-                        response.setPayload(success ? "OK" : "FAIL");
+                        boolean ok = updateRoomStatus(updatedRoom);
+                        response.setPayload(ok?"OK":"FAIL");
                     } else if (msg.getType() == RequestType.LOAD_SCHEDULE_ENTRIES) {
                         String roomId = (String) msg.getPayload();
-                        List<ScheduleEntry> entries = loadScheduleEntries(roomId);
-
-                        response.setDomain("schedule");
-                        response.setType(RequestType.LOAD_SCHEDULE_ENTRIES);
+                        java.util.List<ScheduleEntry> entries = loadScheduleEntries(roomId);
                         response.setPayload(entries);
                     } else if (msg.getType() == RequestType.SAVE_SCHEDULE_ENTRY) {
                         try {
                             Object[] arr = (Object[]) msg.getPayload();
-                            String roomId = (String) arr[0];
-                            ScheduleEntry entry = (ScheduleEntry) arr[1];
-
-                            saveScheduleEntry(roomId, entry);
+                            saveScheduleEntry((String)arr[0], (ScheduleEntry)arr[1]);
                             response.setPayload("OK");
                         } catch (Exception ex) {
+                            response.setError("일정 저장 중 오류: " + ex.getMessage());
                             ex.printStackTrace();
-                            response.setError("서버에서 일정 저장 중 오류 발생: " + ex.getMessage());
                         }
-                    } else if (msg.getType() == RequestType.LOAD_SCHEDULE_ENTRIES) {
-                        String roomId = (String) msg.getPayload();
-                        List<ScheduleEntry> list = loadScheduleEntries(roomId);
-                        response.setPayload(list);
                     } else {
                         response.setError("지원하지 않는 요청입니다.");
                     }
@@ -185,20 +170,19 @@ public class ClientHandler extends Thread {
                 } catch (Exception e) {
                     System.err.println("❌ 클라이언트 처리 중 예외 발생: " + e.getMessage());
                     e.printStackTrace();
-                    // 클라이언트 연결은 유지
                 }
             }
         } catch (IOException e) {
             System.err.println("❌ 소켓 설정 중 오류: " + e.getMessage());
             e.printStackTrace();
         } finally {
-            try {
-                if (socket != null && !socket.isClosed()) {
-                    socket.close();
-                    System.out.println("🔒 소켓 닫힘: " + socket.getInetAddress());
-                }
-            } catch (IOException ignored) {
+            if (slotAcquired) {
+                int left = Server.activeCount.decrementAndGet();
+                System.out.println("🔄 슬롯 반환: 현재 활성 클라이언트 수 = " + left);
             }
+            try {
+                if (!socket.isClosed()) socket.close();
+            } catch (IOException ignored) {}
         }
     }
 

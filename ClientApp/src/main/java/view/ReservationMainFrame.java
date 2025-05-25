@@ -4,6 +4,10 @@
  */
 package view;
 
+import client.ClientMain;
+import client.SocketClient;
+import common.Message;
+import common.RequestType;
 import view.LoginView;
 import common.User;
 import controller.LoginController;
@@ -150,8 +154,20 @@ public class ReservationMainFrame extends javax.swing.JFrame {
 
     private void logOutBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logOutBtnActionPerformed
         // TODO add your handling code here:
+        try {
+            Message req = new Message();
+            req.setDomain("user");
+            req.setType(RequestType.DISCONNECT);
+            req.setPayload(null);
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 2) 현재 창 닫고 로그인 화면으로 돌아가기
+        this.dispose();
         new LoginView().setVisible(true);
-        dispose();
     }//GEN-LAST:event_logOutBtnActionPerformed
 
     /**
