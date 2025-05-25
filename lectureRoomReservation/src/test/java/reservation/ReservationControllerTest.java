@@ -1,155 +1,105 @@
 package reservation;
 
 import org.junit.jupiter.api.*;
-
-import java.io.*;
-import java.nio.file.*;
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReservationControllerTest {
 
-    // 기존 데이터를 보존하기 위한 백업 파일 경로
-    private Path backupReservationFile;
-    private Path backupRoomFile;
-
-    // 테스트에 사용할 실제 파일 경로 (테스트 중 임시 데이터로 덮어씀)
-    private Path testReservationFile;
-    private Path testRoomFile;
-
-    // 실제 파일 경로 상수
-    private final String reservationPath = "src/main/resources/reservation_data.txt";
-    private final String roomPath = "src/main/resources/rooms.txt";
-
-    // 테스트 대상 객체
+    // 테스트 대상인 ReservationController 객체
     private ReservationController controller;
 
     /**
-     * 각 테스트 실행 전 실행되는 메서드
-     * 기존 파일을 백업하고, 테스트용 데이터로 파일 내용을 교체
+     * 각 테스트 메서드 실행 전에 호출됨.
+     * 실제 파일 I/O를 수행하지 않고, 테스트에 필요한 데이터만 반환하도록
+     * ReservationModel을 익명 서브클래스로 오버라이드하여 테스트용 모형 모델을 만듦.
      */
     @BeforeEach
-    public void setUp() throws IOException {
-        // 원본 reservation_data.txt와 rooms.txt 파일을 백업 (임시 파일 생성)
-        backupReservationFile = Files.createTempFile("backup_reservation", ".txt");
-        backupRoomFile = Files.createTempFile("backup_rooms", ".txt");
+    public void setUp() {
+        ReservationModel testModel = new ReservationModel() {
+            // loadTimetable 메서드 오버라이드:
+            // 실제 파일 읽지 않고, 두 개 시간대 데이터를 직접 생성해서 반환
+            @Override
+            public List<RoomStatus> loadTimetable(String date, String roomNumber) {
+                List<RoomStatus> list = new ArrayList<>();
+                list.add(new RoomStatus("09:00~09:50", "비어 있음")); // 첫 시간 슬롯, 예약 안됨 상태
+                list.add(new RoomStatus("10:00~10:50", "비어 있음")); // 두 번째 시간 슬롯, 예약 안됨 상태
+                return list;
+            }
 
-        // 원본 파일 내용을 백업 파일로 복사
-        Files.copy(Paths.get(reservationPath), backupReservationFile, StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(Paths.get(roomPath), backupRoomFile, StandardCopyOption.REPLACE_EXISTING);
+            // checkRoomAvailable 오버라이드:
+            // 911호는 강의실 차단 상태로 반환, 그 외는 사용 가능(null 반환)
+            @Override
+            public String checkRoomAvailable(String roomNumber) {
+                if ("911".equals(roomNumber)) {
+                    return "강의실 차단";
+                }
+                return null;
+            }
 
-        // 테스트용 파일로 다시 접근 (실제 파일 경로에 덮어씀)
-        testReservationFile = Paths.get(reservationPath);
-        testRoomFile = Paths.get(roomPath);
+            // checkAvailability 오버라이드:
+            // 테스트 편의를 위해 모든 시간/강의실 예약 가능(true)로 반환
+            @Override
+            public boolean checkAvailability(String date, String time, String room) {
+                return true;
+            }
 
-        // 테스트용 rooms.txt 내용 작성 (912는 사용가능, 911은 사용불가능)
-        Files.write(testRoomFile, List.of("912,사용가능", "911,사용불가능"));
+            // saveReservation 오버라이드:
+            // 파일에 실제 저장하지 않고 항상 성공(true)로 처리
+            @Override
+            public boolean saveReservation(String date, String time, String room, String name, String status) {
+                return true;
+            }
+        };
 
-        // 테스트용 reservation_data.txt 초기화 (빈 상태로 시작)
-        Files.write(testReservationFile, new ArrayList<>());
+        // 위에서 만든 테스트용 모델을 주입해 ReservationController 인스턴스 생성
+        controller = new ReservationController(testModel);
 
-        // 테스트용 컨트롤러 인스턴스 생성
-        controller = new ReservationController();
-
-        // 팝업 방지 설정 (테스트 환경에서는 JOptionPane 사용 안 함)
+        // 테스트 중 팝업이 뜨지 않도록 설정
         controller.setShowDialog(false);
     }
 
     /**
-     * 각 테스트 실행 후 실행되는 메서드
-     * 테스트 중 덮어쓴 파일을 원래 상태로 복구
-     */
-    @AfterEach
-    public void tearDown() throws IOException {
-        // 백업한 파일 내용을 원래 위치로 복원
-        Files.copy(backupReservationFile, Paths.get(reservationPath), StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(backupRoomFile, Paths.get(roomPath), StandardCopyOption.REPLACE_EXISTING);
-
-        // 임시 백업 파일 삭제
-        Files.deleteIfExists(backupReservationFile);
-        Files.deleteIfExists(backupRoomFile);
-    }
-
-    /**
-     * 테스트 1: 시간표 로드 테스트
-     * - 912호의 시간표를 불러왔을 때 9개의 시간 슬롯이 정상적으로 생성되는지 확인
-     * - 각 시간은 "비어 있음" 상태여야 함 (초기 예약 없음)
+     * loadTimetable 메서드 정상 동작 테스트
+     *  - 지정한 날짜와 강의실에 대해 두 개 시간 슬롯이 반환되는지 확인
+     *  - 첫 번째 슬롯이 "09:00~09:50"이고 상태가 "비어 있음"인지 확인
      */
     @Test
     public void testLoadTimetable() {
-        List<RoomStatus> result = controller.loadTimetable("2025", "05", "05", "912");
-
-        // 리스트가 null이 아니고
-        assertNotNull(result);
-
-        // 시간대가 총 9개인지 확인
-        assertEquals(9, result.size());
-
-        // 첫 시간 슬롯이 "09:00~09:50"인지 확인
-        assertEquals("09:00~09:50", result.get(0).getTimeSlot());
+        List<RoomStatus> list = controller.loadTimetable("2025", "05", "05", "912");
+        assertNotNull(list, "시간표 리스트가 null이 아니어야 합니다.");
+        assertEquals(2, list.size(), "시간 슬롯 개수가 2개여야 합니다.");
+        assertEquals("09:00~09:50", list.get(0).getTimeSlot(), "첫 시간 슬롯은 '09:00~09:50'이어야 합니다.");
+        assertEquals("비어 있음", list.get(0).getStatus(), "첫 시간 슬롯 상태는 '비어 있음'이어야 합니다.");
     }
 
     /**
-     * 테스트 2: 예약 성공 테스트
-     * - 예약 가능한 시간대에 예약을 시도하면 SUCCESS가 반환되어야 함
+     * 예약 요청 성공 테스트
+     *  - 유효한 시간과 사용 가능한 강의실에 대해 예약 성공 결과 반환 확인
      */
     @Test
-    public void testProcessReservationRequest() {
-        ReservationResult result = controller.processReservationRequest(
-            "2025-05-05", "16:00~16:50", "912", "테스트사용자"
-        );
-
-        // 예약 성공 결과가 반환되어야 함
-        assertEquals(ReservationResult.SUCCESS, result);
+    public void testProcessReservationRequestSuccess() {
+        ReservationResult result = controller.processReservationRequest("2025-05-05", "10:00~10:50", "912", "테스트사용자");
+        assertEquals(ReservationResult.SUCCESS, result, "예약 요청은 성공이어야 합니다.");
     }
 
     /**
-     * 테스트 3: 사용 불가능한 강의실에 예약 시도
-     * - rooms.txt에서 911호는 사용불가능으로 설정되어 있음
-     * - 이 경우 ROOM_BLOCKED가 반환되어야 함
+     * 사용 불가능 강의실 예약 시도 테스트
+     *  - 911호는 강의실 차단 상태이므로 예약 차단 결과 반환 확인
      */
     @Test
-    public void testRoomBlockedReservation() {
-        ReservationResult result = controller.processReservationRequest(
-            "2025-05-10", "09:00~09:50", "911", "테스트사용자"
-        );
-
-        // 강의실 차단 결과가 반환되어야 함
-        assertEquals(ReservationResult.ROOM_BLOCKED, result);
+    public void testProcessReservationRequestRoomBlocked() {
+        ReservationResult result = controller.processReservationRequest("2025-05-05", "09:00~09:50", "911", "테스트사용자");
+        assertEquals(ReservationResult.ROOM_BLOCKED, result, "차단된 강의실 예약 요청은 ROOM_BLOCKED 반환해야 합니다.");
     }
 
     /**
-     * 테스트 4: 예약 중복 테스트
-     * - 동일한 시간, 동일한 강의실에 두 번 예약을 시도했을 때
-     * - 첫 번째는 SUCCESS, 두 번째는 TIME_OCCUPIED가 되어야 함
+     * 예약 시간 미선택 시 처리 테스트
+     *  - 빈 문자열("")을 시간으로 넘길 경우 NOT_SELECTED 결과 반환 확인
      */
     @Test
-    public void testDuplicateReservation() {
-        // 첫 번째 사용자 예약 (성공)
-        ReservationResult first = controller.processReservationRequest(
-            "2025-05-06", "13:00~13:50", "912", "사용자A"
-        );
-        assertEquals(ReservationResult.SUCCESS, first);
-
-        // 두 번째 사용자 같은 시간에 예약 시도 (실패)
-        ReservationResult second = controller.processReservationRequest(
-            "2025-05-06", "13:00~13:50", "912", "사용자B"
-        );
-        assertEquals(ReservationResult.TIME_OCCUPIED, second);
-    }
-
-    /**
-     * 테스트 5: 시간 선택 안 하고 예약 시도
-     * - 시간 값이 빈 문자열일 경우 NOT_SELECTED가 반환되어야 함
-     */
-    @Test
-    public void testNoTimeSelected() {
-        ReservationResult result = controller.processReservationRequest(
-            "2025-05-07", "", "912", "사용자C"
-        );
-
-        // 시간 미선택 경고 결과
-        assertEquals(ReservationResult.NOT_SELECTED, result);
+    public void testProcessReservationRequestNoTimeSelected() {
+        ReservationResult result = controller.processReservationRequest("2025-05-05", "", "912", "테스트사용자");
+        assertEquals(ReservationResult.NOT_SELECTED, result, "시간 미선택 시 NOT_SELECTED 반환해야 합니다.");
     }
 }

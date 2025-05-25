@@ -11,6 +11,45 @@
         <maven.compiler.target>17</maven.compiler.target>
         <exec.mainClass>deu.cse.lectureroomreservation.LectureRoomReservation</exec.mainClass>
     </properties>
+    <build>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-shade-plugin</artifactId>
+      <version>3.5.1</version>
+      <executions>
+        <!-- 서버용 JAR -->
+        <execution>
+          <id>shade-server</id>
+          <phase>package</phase>
+          <goals><goal>shade</goal></goals>
+          <configuration>
+            <finalName>pos-server</finalName>
+            <transformers>
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <mainClass>network.ServerMain</mainClass>
+              </transformer>
+            </transformers>
+          </configuration>
+        </execution>
+        <!-- 클라이언트용 JAR -->
+        <execution>
+          <id>shade-client</id>
+          <phase>package</phase>
+          <goals><goal>shade</goal></goals>
+          <configuration>
+            <finalName>pos-client</finalName>
+            <transformers>
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <mainClass>network.ClientMain</mainClass>
+              </transformer>
+            </transformers>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
     <dependencies>
     <!-- 테스트 작성용 API -->
     <dependency>

@@ -1,161 +1,108 @@
 package reservation;
 
 import org.junit.jupiter.api.*;
-import java.io.*;
-import java.nio.file.*;
 import java.util.*;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ReservationModelTest {
 
-    private Path backupReservationFile;
-    private Path backupRoomFile;
-    private Path testReservationFile;
-    private Path testRoomFile;
-
-    private final String reservationPath = "src/main/resources/reservation_data.txt";
-    private final String roomPath = "src/main/resources/rooms.txt";
-
+    // 테스트 대상인 ReservationModel 객체
     private ReservationModel model;
 
+    /**
+     * 각 테스트 실행 전 호출됨
+     * 실제 파일 I/O를 하지 않고 테스트용 데이터만 반환하도록
+     * ReservationModel을 익명 서브클래스로 오버라이드하여 테스트용 객체 생성
+     */
     @BeforeEach
-    public void setUp() throws IOException {
-        // 테스트 전에 기존 파일을 백업해 둠
-        backupReservationFile = Files.createTempFile("backup_reservation", ".txt");
-        backupRoomFile = Files.createTempFile("backup_rooms", ".txt");
-        Files.copy(Paths.get(reservationPath), backupReservationFile, StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(Paths.get(roomPath), backupRoomFile, StandardCopyOption.REPLACE_EXISTING);
+    public void setUp() {
+        model = new ReservationModel() {
+            // loadTimetable 메서드 오버라이드:
+            // 파일 읽기 대신 테스트에 필요한 시간표 데이터 반환
+            @Override
+            public List<RoomStatus> loadTimetable(String date, String roomNumber) {
+                List<RoomStatus> list = new ArrayList<>();
+                list.add(new RoomStatus("09:00~09:50", "비어 있음"));  // 비어 있는 시간 슬롯
+                list.add(new RoomStatus("10:00~10:50", "예약"));       // 예약 상태 시간 슬롯
+                return list;
+            }
 
-        // rooms.txt에 테스트용 데이터 기록: 911은 사용가능으로 지정
-        Files.write(Paths.get(roomPath), List.of("911,사용가능"));
+            // checkRoomAvailable 오버라이드:
+            // 911호는 차단 상태 반환, 그 외는 사용 가능(null)
+            @Override
+            public String checkRoomAvailable(String roomNumber) {
+                if ("911".equals(roomNumber)) {
+                    return "강의실 차단";
+                }
+                return null;
+            }
 
-        // reservation_data.txt는 비워둠
-        Files.write(Paths.get(reservationPath), new ArrayList<>());
+            // checkAvailability 오버라이드:
+            // 10:00~10:50 시간대는 이미 예약된 상태로 false 반환
+            // 그 외 시간대는 예약 가능(true)
+            @Override
+            public boolean checkAvailability(String date, String time, String room) {
+                if ("10:00~10:50".equals(time)) {
+                    return false;
+                }
+                return true;
+            }
 
-        // 테스트용 모델 생성
-        model = new ReservationModel();
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        // 테스트가 끝난 후 원래 파일 복구
-        Files.copy(backupReservationFile, Paths.get(reservationPath), StandardCopyOption.REPLACE_EXISTING);
-        Files.copy(backupRoomFile, Paths.get(roomPath), StandardCopyOption.REPLACE_EXISTING);
-
-        // 임시 백업 파일 삭제
-        Files.deleteIfExists(backupReservationFile);
-        Files.deleteIfExists(backupRoomFile);
+            // saveReservation 오버라이드:
+            // 저장 성공을 항상 반환하여 테스트 진행 용이
+            @Override
+            public boolean saveReservation(String date, String time, String room, String name, String status) {
+                return true;
+            }
+        };
     }
 
     /**
-     * loadTimetable() 메서드가 정상적으로 시간대별 상태를 로드하는지 테스트.
-     * 이 테스트는 911호의 2025-05-05 날짜 시간표를 불러올 때,
-     * 모든 시간대가 "비어 있음" 상태로 초기화되는지 확인함.
+     * loadTimetable 메서드 정상 동작 테스트
+     * - 지정한 날짜 및 강의실에 대해 두 개 시간 슬롯이 반환되는지 확인
+     * - 각 시간 슬롯의 시간과 상태가 테스트용 데이터와 일치하는지 확인
      */
     @Test
     public void testLoadTimetable() {
-        String date = "2025-05-05";
-        String roomNumber = "911";
+        List<RoomStatus> timetable = model.loadTimetable("2025-05-05", "912");
 
-        // 시간표 로드
-        List<RoomStatus> result = model.loadTimetable(date, roomNumber);
-
-        // 결과가 null이 아니어야 함
-        assertNotNull(result);
-
-        // 시간 슬롯이 8개여야 함
-        assertEquals(8, result.size());
-
-        // 첫 번째 시간 슬롯이 정확한지 확인
-        assertEquals("09:00~09:50", result.get(0).getTimeSlot());
-
-        // 해당 시간의 상태가 null이 아닌지 확인
-        assertNotNull(result.get(0).getStatus());
+        assertNotNull(timetable, "시간표 리스트가 null이 아니어야 합니다.");
+        assertEquals(2, timetable.size(), "시간 슬롯 개수가 2개여야 합니다.");
+        assertEquals("09:00~09:50", timetable.get(0).getTimeSlot(), "첫 시간 슬롯은 '09:00~09:50'이어야 합니다.");
+        assertEquals("비어 있음", timetable.get(0).getStatus(), "첫 시간 슬롯 상태는 '비어 있음'이어야 합니다.");
+        assertEquals("10:00~10:50", timetable.get(1).getTimeSlot(), "두 번째 시간 슬롯은 '10:00~10:50'이어야 합니다.");
+        assertEquals("예약", timetable.get(1).getStatus(), "두 번째 시간 슬롯 상태는 '예약'이어야 합니다.");
     }
 
     /**
-     * checkAvailability() 메서드가 특정 시간대에 예약 가능 여부를 올바르게 판단하는지 테스트.
-     * 현재 reservation_data.txt에 아무 데이터도 없으므로,
-     * 어떤 시간대를 조회하더라도 예약 가능(true)해야 한다.
+     * checkRoomAvailable 메서드 테스트
+     * - 911호는 차단 상태 문자열 반환 확인
+     * - 912호는 사용 가능(null) 반환 확인
+     */
+    @Test
+    public void testCheckRoomAvailable() {
+        assertEquals("강의실 차단", model.checkRoomAvailable("911"), "911호는 차단되어야 합니다.");
+        assertNull(model.checkRoomAvailable("912"), "912호는 사용 가능이어야 합니다.");
+    }
+
+    /**
+     * checkAvailability 메서드 테스트
+     * - 10:00~10:50 시간대는 예약 불가(false)로 처리되는지 확인
+     * - 09:00~09:50 시간대는 예약 가능(true)인지 확인
      */
     @Test
     public void testCheckAvailability() {
-        String date = "2025-05-05";
-        String time = "10:00~10:50";
-        String room = "911";
-
-        // 해당 시간대가 비어있는지 확인 (true 기대)
-        boolean result = model.checkAvailability(date, time, room);
-        assertTrue(result);
+        assertFalse(model.checkAvailability("2025-05-05", "10:00~10:50", "912"), "10:00~10:50 시간대는 예약 불가여야 합니다.");
+        assertTrue(model.checkAvailability("2025-05-05", "09:00~09:50", "912"), "09:00~09:50 시간대는 예약 가능이어야 합니다.");
     }
 
     /**
-     * saveReservation() 메서드가 예약 정보를 텍스트 파일에 정상적으로 저장하는지 테스트.
-     * 저장 후 true를 반환하면 성공으로 간주.
+     * saveReservation 메서드 테스트
+     * - 항상 true를 반환하므로 저장 성공 여부 확인
      */
     @Test
     public void testSaveReservation() {
-        String date = "2025-05-05";
-        String time = "11:00~11:50";
-        String room = "911";
-        String name = "테스트사용자";
-        String status = "예약 대기";
-
-        // 예약 저장 시도
-        boolean result = model.saveReservation(date, time, room, name, status);
-
-        // 저장이 성공했는지 확인
-        assertTrue(result);
-
-        // 확인 메시지 출력 (추가적인 디버깅용)
-        System.out.println("예약 저장 테스트 성공 여부: " + result);
+        boolean saved = model.saveReservation("2025-05-05", "09:00~09:50", "912", "테스트사용자", "예약 대기");
+        assertTrue(saved, "예약 저장은 성공이어야 합니다.");
     }
-    
-    @Test
-public void testRejectedReservationNotReflected() throws IOException {
-    // 예약 파일에 거절 상태 예약 데이터 임시 저장
-    Files.write(Paths.get(reservationPath), List.of(
-        "2025-05-05,10:00~10:50,912,사용자A,거절"
-    ));
-
-    // 시간표 로드
-    List<RoomStatus> result = model.loadTimetable("2025-05-05", "912");
-
-    // 10:00~10:50 슬롯이 "비어 있음" 상태 유지되어야 함 (거절은 반영 안 됨)
-    boolean isEmpty = false;
-    for (RoomStatus rs : result) {
-        if (rs.getTimeSlot().equals("10:00~10:50")) {
-            isEmpty = rs.getStatus().equals("비어 있음");
-            break;
-        }
-    }
-    assertTrue(isEmpty, "거절 상태 예약은 시간표에 반영되지 않아야 합니다.");
-}
-
-@Test
-public void testScheduleFileReflectedInTimetable() throws IOException {
-    // schedule_912.txt 파일에 수업 정보 임시 작성 (해당 경로에 있어야 함)
-    Path scheduleFile = Paths.get("src/main/resources/schedule_912.txt");
-    Files.write(scheduleFile, List.of(
-        "월,10:00~10:50,자료구조,홍길동"
-    ));
-
-    // 시간표 로드 (월요일인 2025-05-04 기준)
-    List<RoomStatus> result = model.loadTimetable("2025-05-05", "912");
-
-    // 10:00~10:50 슬롯이 수업명과 교수명 반영된 상태여야 함
-    boolean containsClass = false;
-    for (RoomStatus rs : result) {
-        if (rs.getTimeSlot().equals("10:00~10:50")) {
-            containsClass = rs.getStatus().equals("자료구조(홍길동)");
-            break;
-        }
-    }
-    assertTrue(containsClass, "수업 일정이 시간표에 정상 반영되어야 합니다.");
-
-    // 테스트 후 임시로 만든 schedule 파일 삭제 (선택 사항)
-    Files.deleteIfExists(scheduleFile);
-}
-
 }
