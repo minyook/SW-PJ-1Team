@@ -10,6 +10,7 @@ view\ReservationFrame$8.class
 view\TimeTableFrame$2.class
 view\ReservationMainFrame$1.class
 model\RoomTableModel.class
+controller\TimeTableController$1.class
 view\MyReservationFrame$1.class
 view\ReservationFrame$9.class
 common\Room$Availability.class

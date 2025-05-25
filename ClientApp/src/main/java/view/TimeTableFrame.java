@@ -4,13 +4,24 @@
  */
 package view;
 
+import client.ClientMain;
+import common.Message;
+import common.RequestType;
+import common.RoomStatus;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import view.ReservationMainFrame;
 import controller.TimeTableController;
 import common.User;
+import java.awt.Color;
+import java.awt.Component;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -24,37 +35,36 @@ public class TimeTableFrame extends javax.swing.JFrame {
         this.user = user;
         initComponents();
         setLocationRelativeTo(null);
-        // 예: 사용자 이름 표시
-        // welcomeLabel.setText(user.getName() + "님의 시간표");
     }
-    
+
     private void updateTimeTable(Map<String, List<String>> schedule) {
-    String[] days = { "월", "화", "수", "목", "금" };
-    String[] times = {
-        "09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
-        "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"
-    };
+        String[] days = {"월", "화", "수", "목", "금"};
+        String[] times = {
+            "09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
+            "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"
+        };
 
-    // 테이블 모델 가져오기
-    DefaultTableModel model = (DefaultTableModel) timeTable.getModel();
+        // 테이블 모델 가져오기
+        DefaultTableModel model = (DefaultTableModel) timeTable.getModel();
 
-    // 기존 테이블 초기화
-    model.setRowCount(0);
+        // 기존 테이블 초기화
+        model.setRowCount(0);
 
-    // 시간별 행을 생성
-    for (int i = 0; i < times.length; i++) {
-        Object[] row = new Object[days.length + 1];
-        row[0] = times[i];
+        // 시간별 행을 생성
+        for (int i = 0; i < times.length; i++) {
+            Object[] row = new Object[days.length + 1];
+            row[0] = times[i];
 
-        for (int j = 0; j < days.length; j++) {
-            String day = days[j];
-            List<String> entries = schedule.get(day);
-            row[j + 1] = (entries != null) ? entries.get(i) : "";
+            for (int j = 0; j < days.length; j++) {
+                String day = days[j];
+                List<String> entries = schedule.get(day);
+                row[j + 1] = (entries != null) ? entries.get(i) : "";
+            }
+
+            model.addRow(row);
         }
-
-        model.addRow(row);
     }
-}
+    // TimeTableFrame 클래스 안에 추가
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -206,29 +216,113 @@ public class TimeTableFrame extends javax.swing.JFrame {
         RMF.setVisible(true);
     }//GEN-LAST:event_backBtnActionPerformed
 
-    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
-        // TODO add your handling code here:
-        // 1. 콤보박스 값 가져오기
-    String selectedMonth = (String) monthComboBox.getSelectedItem();
-    String selectedWeek = (String) weekComboBox.getSelectedItem();
-    String selectedRoom = (String) lectureRoomComboBox.getSelectedItem();
+    /**
+     * 서버에 날짜+강의실을 보내면 예약 현황(RoomStatus)을 리턴합니다.
+     */
+    private List<RoomStatus> fetchScheduleFromServer(String date, String roomNumber) {
+        try {
+            Message req = new Message();
+            req.setDomain("timetable");
+            req.setType(RequestType.LOAD_TIMETABLE);
+            Map<String, String> payload = new HashMap<>();
+            payload.put("date", date);
+            payload.put("room", roomNumber);
+            req.setPayload(payload);
 
-    // 2. 유효성 검사
-    if (selectedMonth == null || selectedWeek == null || selectedRoom == null) {
-        JOptionPane.showMessageDialog(this, "모든 항목을 선택해 주세요.");
-        return;
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+            Message res = (Message) ClientMain.in.readObject();
+
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "예약 현황 불러오기 실패: " + res.getError());
+                return Collections.emptyList();
+            }
+            return (List<RoomStatus>) res.getPayload();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "통신 오류: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
-    // 3. 월, 주차 숫자로 변환
-    int month = Integer.parseInt(selectedMonth.replaceAll("[^0-9]", ""));
-    int week = Integer.parseInt(selectedWeek.replaceAll("[^0-9]", ""));
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+// 1) 콤보박스에서 월‧주차‧강의실 가져오기
+        int month = Integer.parseInt(((String) monthComboBox.getSelectedItem()).replaceAll("[^0-9]", ""));
+        int week = Integer.parseInt(((String) weekComboBox.getSelectedItem()).replaceAll("[^0-9]", ""));
+        String room = ((String) lectureRoomComboBox.getSelectedItem()).replace("호", "");
 
-    // 4. 시간표 조회
-    TimeTableController controller = new TimeTableController();
-    Map<String, List<String>> schedule = controller.getWeeklySchedule(month, week, selectedRoom);
+        // 2) 주차별 시간표 (기존)
+        TimeTableController tc = new TimeTableController();
+        Map<String, List<String>> weekly = tc.getWeeklySchedule(month, week, room);
 
-    // 5. 테이블에 출력
-    updateTimeTable(schedule);
+        // 3) 강의실 고정 스케줄(schedule_<room>.txt)
+        List<String> scheduleLines = tc.loadScheduleFile(room);
+        String[] days = {"월", "화", "수", "목", "금"};
+        String[] times = {"09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
+            "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"};
+        Map<String, List<String>> roomSpec = new HashMap<>();
+        for (String d : days) {
+            roomSpec.put(d, new ArrayList<>(Collections.nCopies(times.length, "")));
+        }
+        for (String line : scheduleLines) {
+            String[] p = line.split(",");
+            if (p.length >= 4 && roomSpec.containsKey(p[0])) {
+                int idx = Arrays.asList(times).indexOf(p[1]);
+                if (idx >= 0) {
+                    roomSpec.get(p[0]).set(idx, p[2] + "(" + p[3] + ")");
+                }
+            }
+        }
+
+        // 4) 예약 현황: 월·주·요일→실제 날짜 계산 → 서버 호출
+        Map<String, List<String>> reservationsPerDay = new HashMap<>();
+        for (int di = 0; di < days.length; di++) {
+            String dKor = days[di];
+            // **날짜 계산**: (week-1)*7 + (di+1)
+            int dayOfMonth = (week - 1) * 7 + (di + 1);
+            String dateString = String.format("2025-%02d-%02d", month, dayOfMonth);
+            List<RoomStatus> rsList = fetchScheduleFromServer(dateString, room);
+
+            // times 순서대로 상태 문자열만 뽑아
+            List<String> slotList = new ArrayList<>();
+            for (String t : times) {
+                // '거절'은 무시
+                RoomStatus rs = rsList.stream()
+                        .filter(x -> x.getTimeSlot().equals(t)
+                        && !x.getStatus().equals("거절"))
+                        .findFirst()
+                        .orElse(null);
+                slotList.add(rs == null ? "" : rs.getStatus());
+            }
+            reservationsPerDay.put(dKor, slotList);
+        }
+
+        // 5) 완전 병합: 수업 > 예약 > 주차별
+        Map<String, List<String>> merged = new HashMap<>();
+        for (String d : days) {
+            List<String> row = new ArrayList<>();
+            List<String> r = roomSpec.get(d);
+            List<String> v = reservationsPerDay.getOrDefault(d, Collections.nCopies(times.length, ""));
+            List<String> w = weekly.getOrDefault(d, Collections.nCopies(times.length, ""));
+            String display;
+            for (int i = 0; i < times.length; i++) {
+                if (!r.get(i).isEmpty()) {
+                    display =r.get(i);
+                } else if (!v.get(i).isEmpty()) {
+                    display = v.get(i);
+                } else if (!w.get(i).isEmpty()) {
+                    display = w.get(i);
+                } else {
+                    display ="";
+                }
+                if("비어 있음".equals(display)){display="";}
+                row.add( display );
+            }
+            merged.put(d, row);
+        }
+
+        // 6) 테이블에 뿌리기
+        updateTimeTable(merged);
     }//GEN-LAST:event_searchBtnActionPerformed
 
     /**
