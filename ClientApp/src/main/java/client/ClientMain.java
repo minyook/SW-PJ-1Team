@@ -33,19 +33,19 @@ public class ClientMain {
             out.flush();
             in = new ObjectInputStream(socket.getInputStream());
 
-            System.out.println("🚀 서버 연결 성공 후 LoginView 띄우기 시도");
+            System.out.println("[Client] : 서버 연결 성공 후 LoginView 띄우기 시도");
             SwingUtilities.invokeLater(() -> {
-                System.out.println("🟢 invokeLater 진입");
+                System.out.println("[Client] : invokeLater 진입");
                 try {
                     UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
                 } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
                 }
                 new LoginView().setVisible(true);
             });
-            System.out.println("✅ invokeLater 호출 완료");
+            System.out.println("[Client] : invokeLater 호출 완료");
 
         } catch (Exception e) {
-            System.err.println("❌ 서버 연결 실패: " + e.getMessage());
+            System.err.println("[Client] : 서버 연결 실패: " + e.getMessage());
         }
     }
 

@@ -30,14 +30,14 @@ public class ClientHandler extends Thread {
 
         try (InputStream is = getClass().getResourceAsStream("/reservation_data.txt")) {
             if (is == null) {
-                System.err.println("❌ resources에서 reservation_data.txt 파일을 찾을 수 없습니다.");
+                System.err.println("[Server] : resources에서 reservation_data.txt 파일을 찾을 수 없습니다.");
                 return;
             }
             storageFile.getParentFile().mkdirs();
             Files.copy(is, storageFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("✅ 예약 데이터 초기화 완료 (storage/reservation_data.txt)");
+            System.out.println("[Server] : 예약 데이터 초기화 완료 (storage/reservation_data.txt)");
         } catch (IOException e) {
-            System.err.println("❌ 예약 데이터 초기화 중 오류 발생:");
+            System.err.println("[Server] : 예약 데이터 초기화 중 오류 발생:");
             e.printStackTrace();
         }
     }
@@ -50,14 +50,14 @@ public class ClientHandler extends Thread {
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
             in = new ObjectInputStream(socket.getInputStream());
-            System.out.println("🔵 클라이언트 스트림 연결됨: " + socket.getInetAddress());
+            System.out.println("[Server] : 클라이언트 스트림 연결됨: " + socket.getInetAddress());
             ensureRoomDataInitialized();
 
             // 3) 요청 처리 루프
             while (true) {
                 try {
                     Message msg = (Message) in.readObject();
-                    System.out.println("✅ 수신된 메시지: " + msg.getType());
+                    System.out.println("[Server] : 수신된 메시지: " + msg.getType());
 
                     Message response = new Message();
                     response.setDomain(msg.getDomain());
@@ -80,7 +80,7 @@ public class ClientHandler extends Thread {
                         } else {
                             saveReservation(r);
                             response.setPayload("성공");
-                            System.out.println("✅ 예약 저장됨: " + r.getUserName() + " - " + r.getDate() + " " + r.getTime());
+                            System.out.println("[Server] : 예약 저장됨: " + r.getUserName() + " - " + r.getDate() + " " + r.getTime());
                         }
                     } else if (msg.getDomain().equals("reservation")
                             && msg.getType() == RequestType.DELETE) {
@@ -142,15 +142,15 @@ public class ClientHandler extends Thread {
                     out.writeObject(response);
                     out.flush();
                 } catch (EOFException | SocketException e) {
-                    System.out.println("⚠️ 클라이언트 연결 종료됨: " + socket.getInetAddress());
+                    System.out.println("[Server] : 클라이언트 연결 종료됨: " + socket.getInetAddress());
                     break;
                 } catch (Exception e) {
-                    System.err.println("❌ 클라이언트 처리 중 예외 발생: " + e.getMessage());
+                    System.err.println("[Server] : 클라이언트 처리 중 예외 발생: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
         } catch (IOException e) {
-            System.err.println("❌ 소켓 설정 중 오류: " + e.getMessage());
+            System.err.println("[Server] : 소켓 설정 중 오류: " + e.getMessage());
             e.printStackTrace();
         }
     }
@@ -441,7 +441,7 @@ public class ClientHandler extends Thread {
         List<Reservation> list = new ArrayList<>();
         String userName = getUserNameById(userId);  // 🔸 ID로 이름 조회
         if (userName == null) {
-            System.err.println("❌ ID에 해당하는 이름을 찾을 수 없습니다: " + userId);
+            System.err.println("[Server] : ID에 해당하는 이름을 찾을 수 없습니다: " + userId);
             return list;
         }
 
@@ -510,7 +510,7 @@ public class ClientHandler extends Thread {
                         case "CLOSED", "사용불가능" ->
                             Room.Availability.CLOSED;
                         default ->
-                            throw new IllegalArgumentException("⚠️ 잘못된 상태: " + parts[1]);
+                            throw new IllegalArgumentException("[Server] : 잘못된 상태: " + parts[1]);
                     };
                     Room room = new Room(parts[0], avail);
                     if (parts.length >= 3) {
