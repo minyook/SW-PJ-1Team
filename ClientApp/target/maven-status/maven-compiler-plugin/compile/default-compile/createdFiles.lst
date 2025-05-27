@@ -3,7 +3,6 @@ common\User.class
 view\MyReservationFrame.class
 view\ReservationFrame$5.class
 controller\LoginController$LoginAction.class
-view\RegisterView$6.class
 view\ReservationFrame$1.class
 controller\LoginController$LoginAction$1.class
 controller\MyReservationController.class

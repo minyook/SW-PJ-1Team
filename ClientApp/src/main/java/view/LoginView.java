@@ -257,7 +257,7 @@ public class LoginView extends javax.swing.JFrame {
                 User user = (User) response.getPayload();
                 showMessage("✅ 로그인 성공: " + user.getUsername());
 
-                if ("조교".equals(user.getRole())) {
+                if ("a".equals(user.getRole())) {
                     new AdminReservationFrame(user).setVisible(true);
                 } else {
                     new ReservationMainFrame(user).setVisible(true);

@@ -9,6 +9,7 @@ import java.util.*;
 import common.*;
 import java.time.DayOfWeek;
 import java.time.LocalTime;
+import controller.UserController;
 
 public class ClientHandler extends Thread {
 
@@ -78,16 +79,10 @@ public class ClientHandler extends Thread {
                     response.setType(msg.getType());
 
                     // 메시지 타입별 분기 처리
-                    if (msg.getType() == RequestType.LOGIN) {
-                        User requestUser = (User) msg.getPayload();
-                        User found = findUser(requestUser.getUsername(), requestUser.getPassword());
-                        if (found != null) {
-                            response.setPayload(found);
-                            System.out.println("🔐 로그인 성공: " + found.getUsername());
-                        } else {
-                            response.setError("아이디 또는 비밀번호가 일치하지 않습니다.");
-                            System.out.println("❌ 로그인 실패");
-                        }
+                    if (msg.getDomain().equals("user")) {
+                        UserController uc = new UserController();
+                        Message userResponse = uc.handle(msg);
+                        response = userResponse;  // 그대로 응답 사용
                     } // run() 안 메시지 분기 처리 중에
                     else if (msg.getType() == RequestType.DISCONNECT) {
                         // 클라이언트가 직접 연결 종료 의사를 밝힘
@@ -96,17 +91,12 @@ public class ClientHandler extends Thread {
                         out.flush();
                         // break; -> finally 로 넘어가서 slot 반환
                         break;
-                    } else if (msg.getType() == RequestType.REGISTER) {
-                        User newUser = (User) msg.getPayload();
-                        if (checkUserExists(newUser.getUsername())) {
-                            response.setError("이미 존재하는 ID입니다.");
-                        } else if (saveUser(newUser)) {
-                            response.setPayload("회원가입 완료");
-                            System.out.println("✅ 신규 회원 등록됨: " + newUser.getUsername());
-                        } else {
-                            response.setError("회원가입 저장 중 오류 발생");
-                        }
-                    } else if (msg.getType() == RequestType.RESERVE) {
+                    } else if (msg.getDomain().equals("user")) {
+                         UserController uc = new UserController();
+                         Message userResponse = uc.handle(msg);
+                         response = userResponse;  // 그대로 사용
+                        } 
+                        else if (msg.getType() == RequestType.RESERVE) {
                         Reservation r = (Reservation) msg.getPayload();
                         if (isTimeSlotTaken(r)) {
                             response.setPayload("중복");
