@@ -24,11 +24,11 @@ public class MyReservationController {
                 List<Reservation> userReservations = model.getByUser(username);
                 res.setList(userReservations);
             } else {
-                res.setError("지원하지 않는 요청입니다.");
+                res.setMessage("지원하지 않는 요청입니다.");
             }
 
         } catch (Exception e) {
-            res.setError("내 예약 조회 중 오류 발생: " + e.getMessage());
+            res.setMessage("내 예약 조회 중 오류 발생: " + e.getMessage());
         }
 
         return res;

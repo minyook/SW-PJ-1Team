@@ -26,10 +26,10 @@ public class RoomController {
                     model.delete(req.getIndex());
                     break;
                 default:
-                    res.setError("지원하지 않는 강의실 요청입니다.");
+                    res.setMessage("지원하지 않는 강의실 요청입니다.");
             }
         } catch (Exception e) {
-            res.setError(e.getMessage());
+            res.setMessage(e.getMessage());
         }
         return res;
     }

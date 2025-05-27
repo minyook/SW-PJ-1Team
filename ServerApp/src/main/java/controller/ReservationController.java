@@ -31,10 +31,10 @@ public class ReservationController {
                     res.setPayload(req.getPayload());
                     break;
                 default:
-                    res.setError("지원하지 않는 예약 요청입니다.");
+                    res.setMessage("지원하지 않는 예약 요청입니다.");
             }
         } catch (Exception e) {
-            res.setError(e.getMessage());
+            res.setMessage(e.getMessage());
         }
         return res;
     }

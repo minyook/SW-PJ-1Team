@@ -18,5 +18,6 @@ public enum RequestType {
     LOAD_ROOMS,
     LOAD_SCHEDULE_ENTRIES,
     SAVE_SCHEDULE_ENTRY,
-    DISCONNECT
+    DISCONNECT,
+    MAX_CLIENTS
 }

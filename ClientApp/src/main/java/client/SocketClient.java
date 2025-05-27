@@ -39,4 +39,3 @@ public class SocketClient {
         socket = null;
     }
 }
-

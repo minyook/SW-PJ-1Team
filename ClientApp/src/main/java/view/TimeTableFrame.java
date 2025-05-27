@@ -233,8 +233,8 @@ public class TimeTableFrame extends javax.swing.JFrame {
             ClientMain.out.flush();
             Message res = (Message) ClientMain.in.readObject();
 
-            if (res.getError() != null) {
-                JOptionPane.showMessageDialog(this, "예약 현황 불러오기 실패: " + res.getError());
+            if (res.getMessage() != null) {
+                JOptionPane.showMessageDialog(this, "예약 현황 불러오기 실패: " + res.getMessage());
                 return Collections.emptyList();
             }
             return (List<RoomStatus>) res.getPayload();

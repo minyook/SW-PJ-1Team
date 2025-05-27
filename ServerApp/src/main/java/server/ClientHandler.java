@@ -53,21 +53,6 @@ public class ClientHandler extends Thread {
             System.out.println("🔵 클라이언트 스트림 연결됨: " + socket.getInetAddress());
             ensureRoomDataInitialized();
 
-            // 1) busy-wait: MAX_ACTIVE 이하가 될 때까지 대기
-            while (Server.activeCount.get() >= Server.MAX_ACTIVE) {
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
-                    break;
-                }
-            }
-
-            // 2) 슬롯 획득
-            slotAcquired = true;
-            int now = Server.activeCount.incrementAndGet();
-            System.out.println("✅ 슬롯 획득: 현재 활성 클라이언트 수 = " + now);
-
             // 3) 요청 처리 루프
             while (true) {
                 try {
@@ -145,11 +130,11 @@ public class ClientHandler extends Thread {
                             saveScheduleEntry((String)arr[0], (ScheduleEntry)arr[1]);
                             response.setPayload("OK");
                         } catch (Exception ex) {
-                            response.setError("일정 저장 중 오류: " + ex.getMessage());
+                            response.setMessage("일정 저장 중 오류: " + ex.getMessage());
                             ex.printStackTrace();
                         }
                     } else {
-                        response.setError("지원하지 않는 요청입니다.");
+                        response.setMessage("지원하지 않는 요청입니다.");
                     }
 
                     out.writeObject(response);

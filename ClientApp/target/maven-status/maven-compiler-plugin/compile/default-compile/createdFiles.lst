@@ -46,6 +46,7 @@ view\LoginView$1.class
 view\ReservationFrame$6.class
 common\ReservationResult.class
 controller\TimeTableController.class
+common\Request.class
 view\ReservationFrame$12.class
 common\Message.class
 view\ReservationFrame$3.class

@@ -32,12 +32,12 @@ public class AdminReservationController {
             req.setType(RequestType.LIST);
 
             Message res = SocketClient.send(req);
-            if (res.getError() == null) {
+            if (res.getMessage() == null) {
                 @SuppressWarnings("unchecked")
                 List<Reservation> list = (List<Reservation>) res.getList();
                 return list;
             } else {
-                System.out.println("조회 실패: " + res.getError());
+                System.out.println("조회 실패: " + res.getMessage());
             }
         } catch (Exception e) {
             System.out.println("서버 요청 오류: " + e.getMessage());
@@ -54,8 +54,8 @@ public class AdminReservationController {
             req.setPayload(r);
 
             Message res = SocketClient.send(req);
-            if (res.getError() == null) return true;
-            else System.out.println("상태 변경 실패: " + res.getError());
+            if (res.getMessage() == null) return true;
+            else System.out.println("상태 변경 실패: " + res.getMessage());
 
         } catch (Exception e) {
             System.out.println("서버 요청 오류: " + e.getMessage());

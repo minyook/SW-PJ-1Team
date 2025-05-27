@@ -24,10 +24,10 @@ public class AdminReservationController {
                     model.updateStatus(req.getIndex(), status);
                     break;
                 default:
-                    res.setError("지원하지 않는 관리자 예약 요청입니다.");
+                    res.setMessage("지원하지 않는 관리자 예약 요청입니다.");
             }
         } catch (Exception e) {
-            res.setError(e.getMessage());
+            res.setMessage(e.getMessage());
         }
         return res;
     }

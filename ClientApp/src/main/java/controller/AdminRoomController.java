@@ -142,8 +142,8 @@ public class AdminRoomController {
             ClientMain.out.flush();
 
             Message res = (Message) ClientMain.in.readObject();
-            if (res.getError() != null) {
-                System.err.println("❌ 스케줄 로드 실패: " + res.getError());
+            if (res.getMessage() != null) {
+                System.err.println("❌ 스케줄 로드 실패: " + res.getMessage());
                 return;
             }
 
@@ -183,8 +183,8 @@ public class AdminRoomController {
             ClientMain.out.flush();
 
             Message res = (Message) ClientMain.in.readObject();
-            if (res.getError() != null) {
-                JOptionPane.showMessageDialog(view, "등록 실패: " + res.getError());
+            if (res.getMessage() != null) {
+                JOptionPane.showMessageDialog(view, "등록 실패: " + res.getMessage());
             } else {
                 JOptionPane.showMessageDialog(view, "등록 성공!");
                 loadScheduleFromServer(roomId);
