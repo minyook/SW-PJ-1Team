@@ -42,10 +42,10 @@ public class LoginController {
                     // --- 서버 응답 반복 읽기 ---
                     while (!isCancelled()) {
                         Message resp = SocketClient.send(req);
-                        if (resp.getMessage() != null && resp.getMessage().contains("대기열")) {
+                        if (resp.getError() != null && resp.getError().contains("대기열")) {
                             System.out.println("📤 로그인 대기중");
                             SwingUtilities.invokeLater(() ->
-                                view.showMessage(resp.getMessage())
+                                view.showMessage(resp.getError())
                             );
                             Thread.sleep(200);
                             continue;
@@ -54,7 +54,7 @@ public class LoginController {
                     }
                     // 취소된 경우
                     Message cancelled = new Message();
-                    cancelled.setMessage("취소됨");
+                    cancelled.setError("취소됨");
                     return cancelled;
                 }
 
@@ -64,8 +64,8 @@ public class LoginController {
                     if (isCancelled()) return;
                     try {
                         Message res = get();
-                        if (res.getMessage() != null) {
-                            view.showMessage("❌ 로그인 실패: " + res.getMessage());
+                        if (res.getError() != null) {
+                            view.showMessage("❌ 로그인 실패: " + res.getError());
                             view.resetFields();
                         } else {
                             User user = (User) res.getPayload();

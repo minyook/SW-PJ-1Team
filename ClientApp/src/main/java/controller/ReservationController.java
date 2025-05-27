@@ -21,10 +21,10 @@ public class ReservationController {
             req.setType(RequestType.LIST);
 
             Message res = SocketClient.send(req);
-            if (res.getMessage() == null) {
+            if (res.getError() == null) {
                 return (List<Reservation>) res.getList();
             } else {
-                System.out.println("조회 실패: " + res.getMessage());
+                System.out.println("조회 실패: " + res.getError());
             }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
@@ -40,10 +40,10 @@ public class ReservationController {
             req.setPayload(r);
 
             Message res = SocketClient.send(req);
-            if (res.getMessage() == null) {
+            if (res.getError() == null) {
                 return true;
             } else {
-                System.out.println("예약 실패: " + res.getMessage());
+                System.out.println("예약 실패: " + res.getError());
             }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
@@ -59,10 +59,10 @@ public class ReservationController {
             req.setPayload(r);
 
             Message res = SocketClient.send(req);
-            if (res.getMessage() == null) {
+            if (res.getError() == null) {
                 return true;
             } else {
-                System.out.println("예약 취소 실패: " + res.getMessage());
+                System.out.println("예약 취소 실패: " + res.getError());
             }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
@@ -87,10 +87,10 @@ public class ReservationController {
             msg.setPayload(roomNumber); // 예: "911"
 
             Message res = SocketClient.send(msg);
-            if (res.getMessage() == null) {
+            if (res.getError() == null) {
                 return (List<String>) res.getPayload();
             } else {
-                System.out.println("시간표 파일 요청 실패: " + res.getMessage());
+                System.out.println("시간표 파일 요청 실패: " + res.getError());
             }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
@@ -119,7 +119,7 @@ public class ReservationController {
 
             Message res = (Message) ClientMain.in.readObject();
 
-            if (res.getMessage() != null) {
+            if (res.getError() != null) {
                 return ReservationResult.ERROR;
             }
 

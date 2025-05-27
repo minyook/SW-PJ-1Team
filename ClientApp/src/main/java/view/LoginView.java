@@ -13,6 +13,9 @@ import javax.swing.*;
 import java.awt.event.ActionListener;
 import controller.LoginController;
 import controller.RegisterController;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 import view.RegisterView;
 
 
@@ -239,41 +242,48 @@ public class LoginView extends javax.swing.JFrame {
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         String id = ID.getText();
-        String pw = new String(Password.getPassword());
+    String pw = new String(Password.getPassword());
 
-        try {
-            Message req = new Message();
-            req.setDomain("user");
-            req.setType(RequestType.LOGIN);
-            req.setPayload(new User(id, pw));
+    try {
+        // ✅ 소켓 재연결 (로그아웃 후 다시 접속하는 경우 대비)
+        ClientMain.socket = new Socket(ClientMain.serverIP, ClientMain.serverPort);
+        ClientMain.out = new ObjectOutputStream(ClientMain.socket.getOutputStream());
+        ClientMain.out.flush();
+        ClientMain.in = new ObjectInputStream(ClientMain.socket.getInputStream());
 
-            System.out.println("📤 로그인 요청 전송 시작");
-            ClientMain.out.writeObject(req);
-            ClientMain.out.flush();
-            System.out.println("📤 로그인 요청 전송 완료");
+        Message req = new Message();
+        req.setDomain("user");
+        req.setType(RequestType.LOGIN);
+        req.setPayload(new User(id, pw));
 
-            Message response = (Message) ClientMain.in.readObject();
+        System.out.println("📤 로그인 요청 전송 시작");
+        ClientMain.out.writeObject(req);
+        ClientMain.out.flush();
+        System.out.println("📤 로그인 요청 전송 완료");
 
-            if (response.getMessage() != null) {
-                showMessage("❌ 로그인 실패: " + response.getMessage());
-                resetFields();
+        Message response = (Message) ClientMain.in.readObject();
+
+        if (response.getError() != null) {
+            showMessage("❌ 로그인 실패: " + response.getError());
+            resetFields();
+        } else {
+            User user = (User) response.getPayload();
+            System.out.println(user.getUsername());
+            showMessage("✅ 로그인 성공: " + user.getUsername());
+
+            if ("a".equals(user.getRole())) {
+                new AdminReservationFrame(user).setVisible(true);
             } else {
-                User user = (User) response.getPayload();
-                showMessage("✅ 로그인 성공: " + user.getUsername());
-
-                if ("a".equals(user.getRole())) {
-                    new AdminReservationFrame(user).setVisible(true);
-                } else {
-                    new ReservationMainFrame(user).setVisible(true);
-                }
-
-                dispose();
+                new ReservationMainFrame(user).setVisible(true);
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            showMessage("서버 연결 중 오류 발생: " + e.getMessage());
+            dispose();
         }
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        showMessage("서버 연결 중 오류 발생: " + e.getMessage());
+    }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed

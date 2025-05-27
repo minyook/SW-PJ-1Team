@@ -13,11 +13,9 @@ model\UserModel.class
 controller\ScheduleController$1.class
 common\ReservationResult.class
 model\RoomModel.class
-common\Request.class
 common\Message.class
 server\ClientHandler$1.class
 server\Server.class
-common\Response.class
 controller\UserController$1.class
 controller\RoomController$1.class
 common\Room$Availability.class
@@ -30,7 +28,6 @@ controller\ReservationController$1.class
 common\Room.class
 common\Reservation.class
 server\ClientHandler.class
-server\ClientManager.class
 model\ScheduleModel.class
 common\session.class
 common\ScheduleEntry$1.class

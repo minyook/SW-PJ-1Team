@@ -26,7 +26,7 @@ public class UserController {
                     if (found != null) {
                         res.setPayload(found);
                     } else {
-                        res.setMessage("로그인 실패: 아이디 또는 비밀번호 오류");
+                        res.setError("로그인 실패: 아이디 또는 비밀번호 오류");
                     }
                 }
 
@@ -35,7 +35,7 @@ public class UserController {
 
                     boolean exists = model.checkUserExists(newUser.getUsername());
                     if (exists) {
-                        res.setMessage("이미 존재하는 ID입니다.");
+                        res.setError("이미 존재하는 ID입니다.");
                     } else {
                         model.register(newUser);
                         model.reload();
@@ -43,10 +43,10 @@ public class UserController {
                     }
                 }
 
-                default -> res.setMessage("지원하지 않는 사용자 요청입니다.");
+                default -> res.setError("지원하지 않는 사용자 요청입니다.");
             }
         } catch (Exception e) {
-            res.setMessage("오류 발생: " + e.getMessage());
+            res.setError("오류 발생: " + e.getMessage());
         }
 
         return res;

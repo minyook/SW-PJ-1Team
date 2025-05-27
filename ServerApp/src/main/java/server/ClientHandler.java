@@ -69,14 +69,7 @@ public class ClientHandler extends Thread {
                         Message userResponse = uc.handle(msg);
                         response = userResponse;  // 그대로 응답 사용
                     } // run() 안 메시지 분기 처리 중에
-                    else if (msg.getType() == RequestType.DISCONNECT) {
-                        // 클라이언트가 직접 연결 종료 의사를 밝힘
-                        response.setPayload("DISCONNECTED");
-                        out.writeObject(response);
-                        out.flush();
-                        // break; -> finally 로 넘어가서 slot 반환
-                        break;
-                    } else if (msg.getDomain().equals("user")) {
+                    else if (msg.getDomain().equals("user")) {
                          UserController uc = new UserController();
                          Message userResponse = uc.handle(msg);
                          response = userResponse;  // 그대로 사용
@@ -130,11 +123,11 @@ public class ClientHandler extends Thread {
                             saveScheduleEntry((String)arr[0], (ScheduleEntry)arr[1]);
                             response.setPayload("OK");
                         } catch (Exception ex) {
-                            response.setMessage("일정 저장 중 오류: " + ex.getMessage());
+                            response.setError("일정 저장 중 오류: " + ex.getMessage());
                             ex.printStackTrace();
                         }
                     } else {
-                        response.setMessage("지원하지 않는 요청입니다.");
+                        response.setError("지원하지 않는 요청입니다.");
                     }
 
                     out.writeObject(response);
@@ -150,14 +143,6 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             System.err.println("❌ 소켓 설정 중 오류: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            if (slotAcquired) {
-                int left = Server.activeCount.decrementAndGet();
-                System.out.println("🔄 슬롯 반환: 현재 활성 클라이언트 수 = " + left);
-            }
-            try {
-                if (!socket.isClosed()) socket.close();
-            } catch (IOException ignored) {}
         }
     }
 

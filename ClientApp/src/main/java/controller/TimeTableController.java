@@ -35,7 +35,7 @@ public class TimeTableController {
 
             Message res = SocketClient.send(req);
 
-            if (res.getMessage() == null) {
+            if (res.getError() == null) {
                 return (Map<String, List<String>>) res.getPayload();
             }
         } catch (Exception e) {
@@ -57,8 +57,8 @@ public class TimeTableController {
             ClientMain.out.flush();
 
             Message res = (Message) ClientMain.in.readObject();
-            if (res.getMessage() != null) {
-                throw new IOException(res.getMessage());
+            if (res.getError() != null) {
+                throw new IOException(res.getError());
             }
             return (List<String>) res.getPayload();
         } catch (Exception e) {
@@ -75,10 +75,10 @@ public class TimeTableController {
             req.setType(RequestType.LIST);
 
             Message res = SocketClient.send(req);
-            if (res.getMessage() == null) {
+            if (res.getError() == null) {
                 return (List<ScheduleEntry>) res.getList();
             } else {
-                System.out.println("시간표 조회 실패: " + res.getMessage());
+                System.out.println("시간표 조회 실패: " + res.getError());
             }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
@@ -104,8 +104,8 @@ public class TimeTableController {
             ClientMain.out.flush();
 
             Message res = (Message) ClientMain.in.readObject();
-            if (res.getMessage() != null) {
-                throw new IOException(res.getMessage());
+            if (res.getError() != null) {
+                throw new IOException(res.getError());
             }
             return (List<RoomStatus>) res.getPayload();
         } catch (Exception e) {

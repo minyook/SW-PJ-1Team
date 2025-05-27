@@ -78,8 +78,8 @@ public class ReservationFrame extends javax.swing.JFrame {
 
             Message response = (Message) ClientMain.in.readObject();
 
-            if (response.getMessage() != null) {
-                JOptionPane.showMessageDialog(null, "❌ 예약 목록 불러오기 실패: " + response.getMessage());
+            if (response.getError() != null) {
+                JOptionPane.showMessageDialog(null, "❌ 예약 목록 불러오기 실패: " + response.getError());
                 return new ArrayList<>();
             }
 
@@ -102,8 +102,8 @@ public class ReservationFrame extends javax.swing.JFrame {
             ClientMain.out.flush();
 
             Message res = (Message) ClientMain.in.readObject();
-            if (res.getMessage() != null) {
-                JOptionPane.showMessageDialog(this, "강의실 목록 불러오기 실패: " + res.getMessage());
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "강의실 목록 불러오기 실패: " + res.getError());
                 return Collections.emptyList();
             }
             // 서버는 payload 에 List<Room> 을 담아 보냄
@@ -131,8 +131,8 @@ public class ReservationFrame extends javax.swing.JFrame {
 
             Message res = (Message) ClientMain.in.readObject();
 
-            if (res.getMessage() != null) {
-                JOptionPane.showMessageDialog(this, "스케줄 불러오기 실패: " + res.getMessage());
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "스케줄 불러오기 실패: " + res.getError());
                 return Collections.emptyList();
             }
 

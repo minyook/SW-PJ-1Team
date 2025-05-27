@@ -1,11 +1,9 @@
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\AdminReservation.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\LoggedInUser.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\Message.java
-C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\Request.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\RequestType.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\Reservation.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\ReservationResult.java
-C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\Response.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\Room.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\RoomStatus.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\common\ScheduleEntry.java
@@ -23,5 +21,4 @@ C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\model\
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\model\ScheduleModel.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\model\UserModel.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\server\ClientHandler.java
-C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\server\ClientManager.java
 C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\src\main\java\server\Server.java

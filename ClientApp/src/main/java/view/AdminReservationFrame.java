@@ -125,9 +125,14 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     // ─── 강의실 정보 조회 ────────────────────────────────────────────────
     // 선택된 강의실 ID
     public String getSelectedRoomId() {
-        int r = roomTable.getSelectedRow();
-        return (String)roomTable.getValueAt(r, 0);
+        int selectedRow = roomTable.getSelectedRow(); // JTable에서 선택된 행 인덱스 가져오기
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "강의실을 선택해주세요.", "경고", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        return (String) roomTable.getValueAt(selectedRow, 0); // 첫 번째 열(강의실 번호) 반환
     }
+
     // 선택된 요일 → DayOfWeek
     public DayOfWeek getSelectedDay() {
         switch ((String)dayCombo.getSelectedItem()) {
