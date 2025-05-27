@@ -7,7 +7,7 @@ import java.nio.file.*;
 import java.util.*;
 
 public class AdminReservationModel {
-    private static final String DATA_FILE = "resources/reservation_data.txt";
+    private static final String DATA_FILE = "storage/reservation_data.txt";
     private final List<Reservation> reservations = new ArrayList<>();
 
     public AdminReservationModel() throws IOException {

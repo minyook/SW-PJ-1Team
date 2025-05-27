@@ -61,6 +61,7 @@ view\LoginView$3.class
 common\Room.class
 common\Reservation.class
 model\ScheduleTableModel.class
+view\TimeTableFrame$3.class
 common\session.class
 view\RegisterView$3.class
 view\ReservationFrame$7.class

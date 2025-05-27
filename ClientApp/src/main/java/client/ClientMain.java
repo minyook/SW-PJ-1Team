@@ -6,15 +6,18 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 public class ClientMain {
+
     public static Socket socket;
     public static ObjectOutputStream out;
     public static ObjectInputStream in;
 
     public static String serverIP;
     public static int serverPort;
- 
+
     public static void main(String[] args) {
         try {
             Scanner scanner = new Scanner(System.in);
@@ -33,6 +36,10 @@ public class ClientMain {
             System.out.println("🚀 서버 연결 성공 후 LoginView 띄우기 시도");
             SwingUtilities.invokeLater(() -> {
                 System.out.println("🟢 invokeLater 진입");
+                try {
+                    UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
+                } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | UnsupportedLookAndFeelException e) {
+                }
                 new LoginView().setVisible(true);
             });
             System.out.println("✅ invokeLater 호출 완료");
