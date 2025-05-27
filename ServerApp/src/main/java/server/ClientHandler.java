@@ -49,7 +49,7 @@ public class ClientHandler extends Thread {
             // 스트림 초기화
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
-            in  = new ObjectInputStream(socket.getInputStream());
+            in = new ObjectInputStream(socket.getInputStream());
             System.out.println("🔵 클라이언트 스트림 연결됨: " + socket.getInetAddress());
             ensureRoomDataInitialized();
 
@@ -70,11 +70,10 @@ public class ClientHandler extends Thread {
                         response = userResponse;  // 그대로 응답 사용
                     } // run() 안 메시지 분기 처리 중에
                     else if (msg.getDomain().equals("user")) {
-                         UserController uc = new UserController();
-                         Message userResponse = uc.handle(msg);
-                         response = userResponse;  // 그대로 사용
-                        } 
-                        else if (msg.getType() == RequestType.RESERVE) {
+                        UserController uc = new UserController();
+                        Message userResponse = uc.handle(msg);
+                        response = userResponse;  // 그대로 사용
+                    } else if (msg.getType() == RequestType.RESERVE) {
                         Reservation r = (Reservation) msg.getPayload();
                         if (isTimeSlotTaken(r)) {
                             response.setPayload("중복");
@@ -83,9 +82,19 @@ public class ClientHandler extends Thread {
                             response.setPayload("성공");
                             System.out.println("✅ 예약 저장됨: " + r.getUserName() + " - " + r.getDate() + " " + r.getTime());
                         }
+                    } else if (msg.getDomain().equals("reservation")
+                            && msg.getType() == RequestType.DELETE) {
+                        // 여기에서 텍스트 파일에서 해당 예약 ID 줄을 삭제하고
+                        // response.setPayload("OK") 또는 "FAIL" 을 반환하도록 합니다.
+                        // 클라이언트가 msg.index에 담아서 보낸 '예약 번호(ID)'를 문자열로 꺼냅니다.
+                        String id = String.valueOf(msg.getIndex());
+                        // 아래에서 구현할 헬퍼(removeReservationById)를 호출해
+                        // 텍스트 파일에서 해당 줄을 삭제하고 성공 여부를 리턴받습니다.
+                        boolean ok = removeReservationById(id);
+                        response.setPayload(ok ? "OK" : "FAIL");
                     } else if (msg.getType() == RequestType.LOAD_TIMETABLE) {
                         @SuppressWarnings("unchecked")
-                        java.util.Map<String,String> info = (java.util.Map<String,String>) msg.getPayload();
+                        java.util.Map<String, String> info = (java.util.Map<String, String>) msg.getPayload();
                         String date = info.get("date");
                         String room = info.get("room");
                         java.util.List<RoomStatus> statusList = loadTimeTable(date, room);
@@ -103,16 +112,16 @@ public class ClientHandler extends Thread {
                         response.setPayload(all);
                     } else if (msg.getType() == RequestType.UPDATE) {
                         @SuppressWarnings("unchecked")
-                        java.util.Map<String,String> info = (java.util.Map<String,String>) msg.getPayload();
+                        java.util.Map<String, String> info = (java.util.Map<String, String>) msg.getPayload();
                         boolean success = updateReservationStatus(info.get("id"), info.get("status"));
-                        response.setPayload(success?"OK":"FAIL");
+                        response.setPayload(success ? "OK" : "FAIL");
                     } else if (msg.getType() == RequestType.LOAD_ROOMS) {
                         java.util.List<Room> rooms = loadRooms();
                         response.setPayload(rooms);
                     } else if (msg.getType() == RequestType.UPDATE_ROOM_STATUS) {
                         Room updatedRoom = (Room) msg.getPayload();
                         boolean ok = updateRoomStatus(updatedRoom);
-                        response.setPayload(ok?"OK":"FAIL");
+                        response.setPayload(ok ? "OK" : "FAIL");
                     } else if (msg.getType() == RequestType.LOAD_SCHEDULE_ENTRIES) {
                         String roomId = (String) msg.getPayload();
                         java.util.List<ScheduleEntry> entries = loadScheduleEntries(roomId);
@@ -120,7 +129,7 @@ public class ClientHandler extends Thread {
                     } else if (msg.getType() == RequestType.SAVE_SCHEDULE_ENTRY) {
                         try {
                             Object[] arr = (Object[]) msg.getPayload();
-                            saveScheduleEntry((String)arr[0], (ScheduleEntry)arr[1]);
+                            saveScheduleEntry((String) arr[0], (ScheduleEntry) arr[1]);
                             response.setPayload("OK");
                         } catch (Exception ex) {
                             response.setError("일정 저장 중 오류: " + ex.getMessage());
@@ -601,6 +610,54 @@ public class ClientHandler extends Thread {
             case SUNDAY ->
                 "일";
         };
+    }
+
+    /**
+     * storage/reservation_data.txt에서 주어진 예약 ID(id, 1부터 시작)에 해당하는 줄을 삭제합니다.
+     *
+     * @param id 삭제할 예약 ID
+     * @return 성공했으면 true, 아니면 false
+     */
+    private boolean removeReservationById(String id) {
+        File file = new File("storage/reservation_data.txt");
+        if (!file.exists()) {
+            return false;
+        }
+
+        List<String> kept = new ArrayList<>();
+        boolean removed = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            int currentId = 1;
+            while ((line = reader.readLine()) != null) {
+                if (String.valueOf(currentId).equals(id)) {
+                    // 이 줄은 삭제(KEEP하지 않음)
+                    removed = true;
+                } else {
+                    kept.add(line);
+                }
+                currentId++;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!removed) {
+            return false;
+        }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (String ln : kept) {
+                writer.write(ln);
+                writer.newLine();
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 }

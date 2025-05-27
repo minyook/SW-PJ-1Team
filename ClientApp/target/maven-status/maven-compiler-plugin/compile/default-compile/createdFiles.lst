@@ -6,6 +6,7 @@ controller\LoginController$LoginAction.class
 view\ReservationFrame$1.class
 controller\LoginController$LoginAction$1.class
 controller\MyReservationController.class
+view\MyReservationFrame$3.class
 view\ReservationFrame$8.class
 view\TimeTableFrame$2.class
 view\ReservationMainFrame$1.class
