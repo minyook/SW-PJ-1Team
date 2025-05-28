@@ -51,9 +51,9 @@ public class RegisterController {
                 Message res = (Message) ClientMain.in.readObject();
 
                 if (res.getError() != null) {
-                    view.showMessage("\u274C 회원가입 실패: " + res.getError());
+                    view.showMessage("회원가입 실패: " + res.getError());
                 } else {
-                    view.showMessage("\u2705 회원가입 성공!");
+                    view.showMessage("회원가입 성공!");
                     view.dispose();
                 }
             } catch (Exception ex) {

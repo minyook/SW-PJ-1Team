@@ -1,0 +1,6 @@
+controller\AdminReservationControllerTest.class
+controller\ReservationControllerTest.class
+controller\LoginControllerTest.class
+controller\TimeTableControllerTest.class
+controller\MyReservationControllerTest.class
+controller\RegisterControllerTest.class
