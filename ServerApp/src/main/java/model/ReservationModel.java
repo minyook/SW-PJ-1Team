@@ -1,24 +1,27 @@
 package model;
 
 import common.Reservation;
-
 import java.io.*;
 import java.util.*;
 
 public class ReservationModel {
-    private static final String DATA_FILE = "reservation_data.txt"; // 리소스 기준
+    private static final String DEFAULT_FILE = "reservation_data.txt";
     private final List<Reservation> reservationList = new ArrayList<>();
 
     public ReservationModel() throws IOException {
-        load();
+        load(DEFAULT_FILE);
     }
 
-    private void load() throws IOException {
+    public ReservationModel(String path) throws IOException {
+        load(path);
+    }
+
+    private void load(String path) throws IOException {
         reservationList.clear();
 
-        InputStream is = getClass().getClassLoader().getResourceAsStream(DATA_FILE);
+        InputStream is = getClass().getClassLoader().getResourceAsStream(path);
         if (is == null) {
-            System.err.println("❌ 리소스 파일을 찾을 수 없습니다: " + DATA_FILE);
+            System.err.println("❌ 리소스 파일을 찾을 수 없습니다: " + path);
             return;
         }
 
@@ -26,16 +29,14 @@ public class ReservationModel {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] tokens = line.split(",");
-                if (tokens.length == 5) {
+                if (tokens.length == 6) {
                     Reservation r = new Reservation(
-                        tokens[0], // date
-                        tokens[1], // time
-                        tokens[2], // roomNumber
-                        tokens[3], // userId
-                        tokens[4],
-                        tokens[5]// status
+                        tokens[0], tokens[1], tokens[2],
+                        tokens[3], tokens[4], tokens[5]
                     );
                     reservationList.add(r);
+                } else {
+                    System.err.println("❌ 잘못된 데이터 형식: " + line);
                 }
             }
         }
@@ -55,7 +56,6 @@ public class ReservationModel {
         return result;
     }
 
-    // ❌ 아래는 읽기 전용 정책에 따라 비활성화 (쓰기 불가)
     public void create(Reservation r) throws IOException {
         throw new UnsupportedOperationException("쓰기 작업은 지원되지 않습니다 (읽기 전용)");
     }

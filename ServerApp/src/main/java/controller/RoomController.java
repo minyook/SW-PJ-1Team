@@ -1,15 +1,24 @@
 package controller;
 
-import common.*;
+import common.Message;
+import common.RequestType;
+import common.Room;
 import model.RoomModel;
 
 import java.io.IOException;
+import java.util.List;
 
 public class RoomController {
     private final RoomModel model;
 
+    // 운영용
     public RoomController() throws IOException {
         model = new RoomModel();
+    }
+
+    // ★ 테스트용 생성자
+    public RoomController(RoomModel model) {
+        this.model = model;
     }
 
     public Message handle(Message req) {

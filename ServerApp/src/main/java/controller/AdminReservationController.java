@@ -11,6 +11,11 @@ public class AdminReservationController {
     public AdminReservationController() throws IOException {
         model = new AdminReservationModel();
     }
+    // src/main/java/controller/AdminReservationController.java
+    public AdminReservationController(AdminReservationModel model) {
+        this.model = model;
+    }
+
 
     public Message handle(Message req) {
         Message res = new Message();

@@ -1,5 +1,4 @@
 test,1,s,이규찬
-test2,2,p,이종민
-test3,3,a,홍길동
-test4,4,s,이미지
-test5,5,s,임진호
+test2,2,p,교수
+test3,3,a,조교
+test4,4,a,학생

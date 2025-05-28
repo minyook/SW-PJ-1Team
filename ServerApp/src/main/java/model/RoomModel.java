@@ -7,23 +7,30 @@ import java.nio.file.*;
 import java.util.*;
 
 public class RoomModel {
-    private static final String DATA_FILE = "resources/room_data.txt";
+    private static final String DEFAULT_DATA_FILE = "resources/room_data.txt";
+    private final String dataFile;
     private final List<Room> roomList = new ArrayList<>();
 
+    // 운영용 생성자
     public RoomModel() throws IOException {
+        this(DEFAULT_DATA_FILE);
+    }
+
+    // ★ 테스트용 생성자: 경로를 외부에서 주입
+    public RoomModel(String dataFile) throws IOException {
+        this.dataFile = dataFile;
         load();
     }
 
     private void load() throws IOException {
         roomList.clear();
-        Path path = Paths.get(DATA_FILE);
+        Path path = Paths.get(dataFile);
         if (!Files.exists(path)) Files.createFile(path);
 
-        List<String> lines = Files.readAllLines(path);
-        for (String line : lines) {
+        for (String line : Files.readAllLines(path)) {
             String[] tokens = line.split(",");
             if (tokens.length >= 1) {
-                Room r = new Room(tokens[0]); // 단순히 RoomID만 저장된 경우
+                Room r = new Room(tokens[0]);
                 roomList.add(r);
             }
         }
@@ -51,6 +58,6 @@ public class RoomModel {
         for (Room r : roomList) {
             lines.add(r.getRoomId());
         }
-        Files.write(Paths.get(DATA_FILE), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+        Files.write(Paths.get(dataFile), lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
 }

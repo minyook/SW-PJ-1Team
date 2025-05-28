@@ -8,8 +8,14 @@ import java.io.IOException;
 public class ReservationController {
     private final ReservationModel model;
 
+    // 운영용 기존 생성자
     public ReservationController() throws IOException {
         model = new ReservationModel();
+    }
+
+    // ★ 테스트용 생성자: 외부에서 ReservationModel 주입
+    public ReservationController(ReservationModel model) {
+        this.model = model;
     }
 
     public Message handle(Message req) {
