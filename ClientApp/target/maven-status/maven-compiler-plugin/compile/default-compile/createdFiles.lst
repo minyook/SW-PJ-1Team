@@ -2,14 +2,14 @@ client\SocketClient.class
 common\User.class
 view\MyReservationFrame.class
 view\ReservationFrame$5.class
-controller\LoginController$LoginAction.class
-view\RegisterView$6.class
 view\ReservationFrame$1.class
 controller\MyReservationController.class
+view\MyReservationFrame$3.class
 view\ReservationFrame$8.class
 view\TimeTableFrame$2.class
 view\ReservationMainFrame$1.class
 model\RoomTableModel.class
+controller\TimeTableController$1.class
 view\MyReservationFrame$1.class
 view\ReservationFrame$9.class
 common\Room$Availability.class
@@ -30,6 +30,7 @@ view\TimeTableFrame$1.class
 common\RoomStatus.class
 controller\AdminRoomController.class
 controller\ReservationController.class
+view\MyReservationFrame$2.class
 controller\RegisterController.class
 view\ReservationMainFrame$3.class
 view\RegisterView$1.class
@@ -44,6 +45,7 @@ view\LoginView$1.class
 view\ReservationFrame$6.class
 common\ReservationResult.class
 controller\TimeTableController.class
+common\Request.class
 view\ReservationFrame$12.class
 common\Message.class
 view\ReservationFrame$3.class
@@ -58,6 +60,7 @@ view\LoginView$3.class
 common\Room.class
 common\Reservation.class
 model\ScheduleTableModel.class
+view\TimeTableFrame$3.class
 common\session.class
 view\RegisterView$3.class
 view\ReservationFrame$7.class

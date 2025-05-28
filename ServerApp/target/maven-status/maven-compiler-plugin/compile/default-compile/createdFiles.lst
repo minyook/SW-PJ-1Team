@@ -6,6 +6,7 @@ common\User.class
 controller\UserController.class
 controller\RoomController.class
 controller\AdminReservationController$1.class
+server\ConnectionManager.class
 common\AdminReservation.class
 controller\MyReservationController.class
 common\RequestType.class

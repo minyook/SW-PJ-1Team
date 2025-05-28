@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 public class ReservationController {
+
     @SuppressWarnings("unchecked")
     public List<Reservation> getAllReservations() {
         try {
@@ -31,7 +32,6 @@ public class ReservationController {
         return List.of();
     }
 
-
     public boolean reserve(Reservation r) {
         try {
             Message req = new Message();
@@ -40,8 +40,11 @@ public class ReservationController {
             req.setPayload(r);
 
             Message res = SocketClient.send(req);
-            if (res.getError() == null) return true;
-            else System.out.println("예약 실패: " + res.getError());
+            if (res.getError() == null) {
+                return true;
+            } else {
+                System.out.println("예약 실패: " + res.getError());
+            }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
         }
@@ -56,13 +59,17 @@ public class ReservationController {
             req.setPayload(r);
 
             Message res = SocketClient.send(req);
-            if (res.getError() == null) return true;
-            else System.out.println("예약 취소 실패: " + res.getError());
+            if (res.getError() == null) {
+                return true;
+            } else {
+                System.out.println("예약 취소 실패: " + res.getError());
+            }
         } catch (Exception e) {
             System.out.println("서버 통신 오류: " + e.getMessage());
         }
         return false;
     }
+
     public List<RoomStatus> loadTimetable(String year, String month, String day, String roomNumber) {
         // 여기서는 서버 요청을 보내는 대신, 더미 데이터로 테스트합니다
         List<RoomStatus> list = new ArrayList<>();
@@ -71,6 +78,7 @@ public class ReservationController {
         list.add(new RoomStatus("11:00", "비어 있음"));
         return list;
     }
+
     public List<String> loadScheduleFile(String roomNumber) {
         try {
             Message msg = new Message();
@@ -92,7 +100,14 @@ public class ReservationController {
 
     public ReservationResult processReservationRequest(String date, String time, String room, String name) {
         try {
-            Reservation reservation = new Reservation(date, time, room, name, "대기");
+            Reservation reservation = new Reservation(
+                    null, // 아직 생성되지 않은 예약 ID (서버에서 할당하거나, 나중에 set 해 줄 수 있으면 null)
+                    date,
+                    time,
+                    room,
+                    name,
+                    "예약 대기" // 상태
+            );
 
             Message req = new Message();
             req.setDomain("reservation");
@@ -120,5 +135,5 @@ public class ReservationController {
             return ReservationResult.ERROR;
         }
     }
-    
+
 }

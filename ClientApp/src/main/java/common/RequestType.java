@@ -6,7 +6,8 @@ public enum RequestType {
     DELETE,     // 항목 삭제
     UPDATE,     // 항목 수정
     LOGIN,      // 로그인 요청
-    REGISTER,    // 회원가입 요청
+    REGISTER,    // 회원가입 요청   
+    LOGOUT,     //로그아웃 요청
     LOAD_RESERVATIONS, 
     LOAD_TIMETABLE,
     RESERVE,
@@ -16,5 +17,8 @@ public enum RequestType {
     UPDATE_ROOM_STATUS,
     LOAD_ROOMS,
     LOAD_SCHEDULE_ENTRIES,
-    SAVE_SCHEDULE_ENTRY
+    SAVE_SCHEDULE_ENTRY,
+    DISCONNECT,
+    MAX_CLIENTS,
+    INFO
 }

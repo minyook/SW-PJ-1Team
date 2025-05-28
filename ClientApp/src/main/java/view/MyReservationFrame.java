@@ -82,8 +82,18 @@ public class MyReservationFrame extends javax.swing.JFrame {
         jScrollPane1.setViewportView(myReservationTable);
 
         deleteBtn.setText("예약 취소");
+        deleteBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteBtnActionPerformed(evt);
+            }
+        });
 
         changeBtn.setText("예약 변경");
+        changeBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                changeBtnActionPerformed(evt);
+            }
+        });
 
         backBtn.setText("뒤로");
         backBtn.addActionListener(new java.awt.event.ActionListener() {
@@ -149,6 +159,14 @@ public class MyReservationFrame extends javax.swing.JFrame {
         new ReservationMainFrame(user).setVisible(true); // 로그인 사용자 정보 유지
     }//GEN-LAST:event_backBtnActionPerformed
 
+    private void deleteBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_deleteBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_deleteBtnActionPerformed
+
+    private void changeBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeBtnActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_changeBtnActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -166,6 +184,12 @@ public class MyReservationFrame extends javax.swing.JFrame {
 public javax.swing.JTable getReservationTable() { return myReservationTable; }
 public javax.swing.JButton getDeleteButton() { return deleteBtn; }
 public javax.swing.JButton getChangeButton() { return changeBtn; }
+/**
+ * 컨트롤러가 변경 버튼 클릭 시
+ * '다시 예약 화면을 띄우기' 위해
+ * 로그인된 User 객체를 꺼낼 수 있도록 합니다.
+ */
+public User getUser() { return this.user; }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton backBtn;

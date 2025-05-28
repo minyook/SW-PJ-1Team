@@ -4,13 +4,29 @@
  */
 package view;
 
+import client.ClientMain;
+import common.Message;
+import common.RequestType;
+import common.RoomStatus;
 import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
-import view.ReservationMainFrame;
 import controller.TimeTableController;
 import common.User;
+import java.awt.Color;
+import java.awt.Component;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
 
 /**
  *
@@ -24,37 +40,36 @@ public class TimeTableFrame extends javax.swing.JFrame {
         this.user = user;
         initComponents();
         setLocationRelativeTo(null);
-        // 예: 사용자 이름 표시
-        // welcomeLabel.setText(user.getName() + "님의 시간표");
     }
-    
+
     private void updateTimeTable(Map<String, List<String>> schedule) {
-    String[] days = { "월", "화", "수", "목", "금" };
-    String[] times = {
-        "09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
-        "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"
-    };
+        String[] days = {"월", "화", "수", "목", "금"};
+        String[] times = {
+            "09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
+            "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"
+        };
 
-    // 테이블 모델 가져오기
-    DefaultTableModel model = (DefaultTableModel) timeTable.getModel();
+        // 테이블 모델 가져오기
+        DefaultTableModel model = (DefaultTableModel) timeTable.getModel();
 
-    // 기존 테이블 초기화
-    model.setRowCount(0);
+        // 기존 테이블 초기화
+        model.setRowCount(0);
 
-    // 시간별 행을 생성
-    for (int i = 0; i < times.length; i++) {
-        Object[] row = new Object[days.length + 1];
-        row[0] = times[i];
+        // 시간별 행을 생성
+        for (int i = 0; i < times.length; i++) {
+            Object[] row = new Object[days.length + 1];
+            row[0] = times[i];
 
-        for (int j = 0; j < days.length; j++) {
-            String day = days[j];
-            List<String> entries = schedule.get(day);
-            row[j + 1] = (entries != null) ? entries.get(i) : "";
+            for (int j = 0; j < days.length; j++) {
+                String day = days[j];
+                List<String> entries = schedule.get(day);
+                row[j + 1] = (entries != null) ? entries.get(i) : "";
+            }
+
+            model.addRow(row);
         }
-
-        model.addRow(row);
     }
-}
+    // TimeTableFrame 클래스 안에 추가
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -77,6 +92,7 @@ public class TimeTableFrame extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         timeTable = new javax.swing.JTable();
         backBtn = new javax.swing.JButton();
+        jTextField1 = new javax.swing.JTextField();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -114,7 +130,7 @@ public class TimeTableFrame extends javax.swing.JFrame {
                 {"13:00~13:50", null, null, null, null, null},
                 {"14:00~14:50", null, null, null, null, null},
                 {"15:00~15:50", null, null, null, null, null},
-                {"16:00~17:00", null, null, null, null, null}
+                {"16:00~16:50", null, null, null, null, null}
             },
             new String [] {
                 "시간/요일", "월", "화", "수", "목", "금"
@@ -129,11 +145,17 @@ public class TimeTableFrame extends javax.swing.JFrame {
             }
         });
 
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(jPanel1Layout.createSequentialGroup()
@@ -158,7 +180,10 @@ public class TimeTableFrame extends javax.swing.JFrame {
                         .addComponent(searchBtn)
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 491, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 491, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jTextField1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 197, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(31, 31, 31))))
         );
         jPanel1Layout.setVerticalGroup(
@@ -180,9 +205,11 @@ public class TimeTableFrame extends javax.swing.JFrame {
                     .addComponent(jLabel4)
                     .addComponent(lectureRoomComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(searchBtn))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 190, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addContainerGap(41, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -193,7 +220,9 @@ public class TimeTableFrame extends javax.swing.JFrame {
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(25, Short.MAX_VALUE))
         );
 
         pack();
@@ -206,30 +235,184 @@ public class TimeTableFrame extends javax.swing.JFrame {
         RMF.setVisible(true);
     }//GEN-LAST:event_backBtnActionPerformed
 
-    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
-        // TODO add your handling code here:
-        // 1. 콤보박스 값 가져오기
-    String selectedMonth = (String) monthComboBox.getSelectedItem();
-    String selectedWeek = (String) weekComboBox.getSelectedItem();
-    String selectedRoom = (String) lectureRoomComboBox.getSelectedItem();
+    /**
+     * 서버에 날짜+강의실을 보내면 예약 현황(RoomStatus)을 리턴합니다.
+     */
+    private List<RoomStatus> fetchScheduleFromServer(String date, String roomNumber) {
+        try {
+            Message req = new Message();
+            req.setDomain("timetable");
+            req.setType(RequestType.LOAD_TIMETABLE);
+            Map<String, String> payload = new HashMap<>();
+            payload.put("date", date);
+            payload.put("room", roomNumber);
+            req.setPayload(payload);
 
-    // 2. 유효성 검사
-    if (selectedMonth == null || selectedWeek == null || selectedRoom == null) {
-        JOptionPane.showMessageDialog(this, "모든 항목을 선택해 주세요.");
-        return;
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+            Message res = (Message) ClientMain.in.readObject();
+
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "예약 현황 불러오기 실패: " + res.getError());
+                return Collections.emptyList();
+            }
+            return (List<RoomStatus>) res.getPayload();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "통신 오류: " + e.getMessage());
+            return Collections.emptyList();
+        }
     }
 
-    // 3. 월, 주차 숫자로 변환
-    int month = Integer.parseInt(selectedMonth.replaceAll("[^0-9]", ""));
-    int week = Integer.parseInt(selectedWeek.replaceAll("[^0-9]", ""));
+    private void searchBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchBtnActionPerformed
+        // 1) 콤보박스에서 월‧주차‧강의실 가져오기
+        int month = Integer.parseInt(((String) monthComboBox.getSelectedItem()).replaceAll("[^0-9]", ""));
+        int week = Integer.parseInt(((String) weekComboBox.getSelectedItem()).replaceAll("[^0-9]", ""));
+        String room = ((String) lectureRoomComboBox.getSelectedItem()).replace("호", "");
 
-    // 4. 시간표 조회
-    TimeTableController controller = new TimeTableController();
-    Map<String, List<String>> schedule = controller.getWeeklySchedule(month, week, selectedRoom);
+        // 2) 주차별 시간표 (기존)
+        TimeTableController tc = new TimeTableController();
+        Map<String, List<String>> weekly = tc.getWeeklySchedule(month, week, room);
 
-    // 5. 테이블에 출력
-    updateTimeTable(schedule);
+        // 3) 강의실 고정 스케줄(schedule_<room>.txt)
+        List<String> scheduleLines = tc.loadScheduleFile(room);
+        String[] days = {"월", "화", "수", "목", "금"};
+        String[] times = {"09:00~09:50", "10:00~10:50", "11:00~11:50", "12:00~12:50",
+            "13:00~13:50", "14:00~14:50", "15:00~15:50", "16:00~16:50"};
+        Map<String, List<String>> roomSpec = new HashMap<>();
+        for (String d : days) {
+            roomSpec.put(d, new ArrayList<>(Collections.nCopies(times.length, "")));
+        }
+        for (String line : scheduleLines) {
+            String[] p = line.split(",");
+            if (p.length >= 4 && roomSpec.containsKey(p[0])) {
+                int idx = Arrays.asList(times).indexOf(p[1]);
+                if (idx >= 0) {
+                    roomSpec.get(p[0]).set(idx, p[2] + "(" + p[3] + ")");
+                }
+            }
+        }
+
+        // 4) 예약 현황: 월·주·요일→실제 날짜 계산 → 서버 호출
+        Map<String, List<String>> reservationsPerDay = new HashMap<>();
+
+        // 4-1) 이번 달 1일 구하기
+        LocalDate firstOfMonth = LocalDate.of(2025, month, 1);
+        // 4-2) 그 달의 첫 번째 월요일 찾기
+        LocalDate firstMonday = firstOfMonth.with(
+                TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY)
+        );
+        // 이번 달의 첫 번째 일요일
+        LocalDate firstSunday = firstOfMonth.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        // 주간 시작/끝 날짜 계산
+        LocalDate startDate, endDate;
+        if (week == 1) {
+            // 1주차: 1일부터 금요일(혹은 그보다 앞선 마지막 평일)까지
+            startDate = firstOfMonth;  // "그 달 1일"을 그대로 쓰고
+            // 1일이 금요일 이후(토·일)이면, 당월의 첫 금요일이 1일보다 앞서지 않으므로
+            // nextOrSame(FRIDAY)로 얻은 날짜가 1일~5일 사이의 금요일이 됩니다.
+            endDate = firstOfMonth.with(TemporalAdjusters.nextOrSame(DayOfWeek.FRIDAY));
+        } else {
+            // (기존 2주차 이상 로직 유지)
+            startDate = firstMonday.plusWeeks(week - 2);
+            endDate = startDate.plusDays(4);
+        }
+
+        String startDow = startDate.getDayOfWeek()
+                .getDisplayName(TextStyle.SHORT, Locale.KOREAN);
+        String endDow = endDate.getDayOfWeek()
+                .getDisplayName(TextStyle.SHORT, Locale.KOREAN);
+
+        // jTextField1에 표시
+        jTextField1.setText(String.format(
+                "%02d월 %02d일 (%s) ~ %02d월 %02d일 (%s)",
+                startDate.getMonthValue(), startDate.getDayOfMonth(), startDow,
+                endDate.getMonthValue(), endDate.getDayOfMonth(), endDow
+        ));
+        for (int di = 0; di < days.length; di++) {
+            String dKor = days[di];
+            LocalDate targetDate;
+
+            if (week == 1) {
+                // 1주차: 1일부터 가장 가까운 각 요일을 사용
+                DayOfWeek colDow = DayOfWeek.of(di + 1); // di=0→MONDAY,1→TUESDAY...
+                targetDate = firstOfMonth.with(
+                        TemporalAdjusters.nextOrSame(colDow)
+                );
+                // 만약 첫 일요일을 넘어갔으면 빈 칸
+                if (targetDate.isAfter(firstSunday)) {
+                    reservationsPerDay.put(dKor, Collections.nCopies(times.length, ""));
+                    continue;
+                }
+            } else {
+                // 2주차 이상: 첫 월요일 기준으로 (week-2)주 + di 일만큼 더함
+                targetDate = firstMonday
+                        .plusWeeks(week - 2)
+                        .plusDays(di);
+            }
+
+            // 다른 달로 넘어가는 셀은 빈 상태 리스트로 설정
+            if (targetDate.getMonthValue() != month) {
+                reservationsPerDay.put(
+                        dKor,
+                        Collections.nCopies(times.length, "")
+                );
+                continue;
+            }
+
+            String dateString = targetDate.toString();  // ISO 포맷 예: "2025-01-01"
+            System.out.println(
+                    "[Client] 요청 날짜=" + dateString + ", 강의실=" + room
+            );
+            List<RoomStatus> rsList = fetchScheduleFromServer(dateString, room);
+
+            // times 순서대로 상태 문자열만 뽑아
+            List<String> slotList = new ArrayList<>();
+            for (String t : times) {
+                RoomStatus rs = rsList.stream()
+                        .filter(x -> x.getTimeSlot().equals(t)
+                        && !x.getStatus().equals("거절"))
+                        .findFirst()
+                        .orElse(null);
+                slotList.add(rs == null ? "" : rs.getStatus());
+            }
+            reservationsPerDay.put(dKor, slotList);
+        }
+
+        // 5) 완전 병합: 수업 > 예약 > 주차별
+        Map<String, List<String>> merged = new HashMap<>();
+        for (String d : days) {
+            List<String> row = new ArrayList<>();
+            List<String> r = roomSpec.get(d);
+            List<String> v = reservationsPerDay.getOrDefault(d, Collections.nCopies(times.length, ""));
+            List<String> w = weekly.getOrDefault(d, Collections.nCopies(times.length, ""));
+            String display;
+            for (int i = 0; i < times.length; i++) {
+                if (!r.get(i).isEmpty()) {
+                    display = r.get(i);
+                } else if (!v.get(i).isEmpty()) {
+                    display = v.get(i);
+                } else if (!w.get(i).isEmpty()) {
+                    display = w.get(i);
+                } else {
+                    display = "";
+                }
+                if ("비어 있음".equals(display)) {
+                    display = "";
+                }
+                row.add(display);
+            }
+            merged.put(d, row);
+        }
+
+        // 6) 테이블에 뿌리기
+        updateTimeTable(merged);
     }//GEN-LAST:event_searchBtnActionPerformed
+
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -271,6 +454,7 @@ public class TimeTableFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTextField jTextField1;
     private javax.swing.JComboBox<String> lectureRoomComboBox;
     private javax.swing.JComboBox<String> monthComboBox;
     private javax.swing.JButton searchBtn;

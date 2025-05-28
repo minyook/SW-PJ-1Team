@@ -149,11 +149,17 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="&#xc608;&#xc57d; &#xcde8;&#xc18c;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="deleteBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="changeBtn">
           <Properties>
             <Property name="text" type="java.lang.String" value="&#xc608;&#xc57d; &#xbcc0;&#xacbd;"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="changeBtnActionPerformed"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="backBtn">
           <Properties>

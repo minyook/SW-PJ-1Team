@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package view;
 
 import client.ClientMain;
@@ -9,67 +5,59 @@ import common.Message;
 import common.RequestType;
 import common.User;
 import controller.LoginController;
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import controller.LoginController;
 import controller.RegisterController;
 import view.RegisterView;
 
+import javax.swing.*;
+import java.awt.event.ActionListener;
 
-/**
- *
- * @author 00rya
- */
 public class LoginView extends javax.swing.JFrame {
 
-    /**
-     * Creates new form LoginView
-     */
+    private ActionListener loginActionListener;  // ✅ 컨트롤러에서 전달받는 리스너
+
     public LoginView() {
-    try {
-        System.out.println("🟡 LoginView 생성자 진입");
-        initComponents();
-        setLocationRelativeTo(null);
-        setVisible(true);
-        System.out.println("🟢 LoginView.setVisible(true) 호출 완료");
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "❗ LoginView 내부 오류: " + e.getMessage());
-    }
-}
-
-
-
-    // 필드 초기화 (로그인 실패 시)
-    public void resetFields() {
-        ID.setText("");
-        Password.setText("");
-        ID.requestFocus();
+        try {
+            initComponents();
+            setLocationRelativeTo(null);
+            setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "❗ LoginView 내부 오류: " + e.getMessage());
+        }
     }
 
-    // 입력된 아이디 반환
+    public void setLoginAction(ActionListener listener) {
+        this.loginActionListener = listener;
+    }
+
+    public void setRegisterAction(ActionListener listener) {
+        jButton1.addActionListener(listener);
+    }
+
     public String getUsername() {
         return ID.getText().trim();
     }
 
-    // 입력된 비밀번호 반환
     public String getPassword() {
         return new String(Password.getPassword()).trim();
     }
 
-    // 팝업 메시지 출력
-    public void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message);
+    public void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
     }
 
-    // 로그인 버튼에 리스너 등록
-    public void setLoginAction(ActionListener listener) {
-        jButton2.addActionListener(listener);
+    public void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "오류", JOptionPane.ERROR_MESSAGE);
     }
 
-    // 회원가입 버튼 리스너 (수정 필요 시 여기에 추가)
-    public void setRegisterAction(ActionListener listener) {
-        jButton1.addActionListener(listener); // 회원가입 버튼 (예: jButton1)
+    public void setLoginEnabled(boolean enabled) {
+        jButton2.setEnabled(enabled);
+    }
+
+    public void resetFields() {
+        ID.setText("");
+        Password.setText("");
+        ID.requestFocus();
     }
     
     /**
@@ -227,42 +215,13 @@ public class LoginView extends javax.swing.JFrame {
     }//GEN-LAST:event_IDActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String id = ID.getText();
-        String pw = new String(Password.getPassword());
+        System.out.println("✅ 로그인 버튼 눌림");
 
-        try {
-            Message req = new Message();
-            req.setDomain("user");
-            req.setType(RequestType.LOGIN);
-            req.setPayload(new User(id, pw));
+        // 🔥 여기서 직접 컨트롤러 메서드 호출
+        String id = getUsername();
+        String pw = getPassword();
 
-            System.out.println("📤 로그인 요청 전송 시작");
-            ClientMain.out.writeObject(req);
-            ClientMain.out.flush();
-            System.out.println("📤 로그인 요청 전송 완료");
-
-            Message response = (Message) ClientMain.in.readObject();
-
-            if (response.getError() != null) {
-                showMessage("❌ 로그인 실패: " + response.getError());
-                resetFields();
-            } else {
-                User user = (User) response.getPayload();
-                showMessage("✅ 로그인 성공: " + user.getUsername());
-
-                if ("조교".equals(user.getRole())) {
-                    new AdminReservationFrame(user).setVisible(true);
-                } else {
-                    new ReservationMainFrame(user).setVisible(true);
-                }
-
-                dispose();
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            showMessage("서버 연결 중 오류 발생: " + e.getMessage());
-        }
+        new LoginController(this).login(id, pw);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -275,13 +234,14 @@ public class LoginView extends javax.swing.JFrame {
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> {
             LoginView view = new LoginView();
-            LoginController controller = new LoginController(view); // ✅ 서버와 통신할 컨트롤러
+            new LoginController(view);  // ✅ 컨트롤러에 View 전달
             view.setVisible(true);
         });
     }
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField ID;

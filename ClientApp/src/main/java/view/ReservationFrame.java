@@ -8,10 +8,15 @@ import common.User;
 import controller.ReservationController;
 import controller.LoginController;
 import common.ReservationResult;
+import common.Room;
 import common.RoomStatus;
 import view.ReservationMainFrame;
 
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -19,11 +24,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class ReservationFrame extends javax.swing.JFrame {
+
     private final User user; // 🔸 로그인 사용자 정보
     private final ReservationController controller;
     private String lastSelectedRoom;
@@ -34,35 +41,32 @@ public class ReservationFrame extends javax.swing.JFrame {
         initComponents();
         setLocationRelativeTo(null);
     }
+
     private void applyTableColoring() {
-    timeTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-        @Override
-        public Component getTableCellRendererComponent(JTable table, Object value,
-                                                       boolean isSelected, boolean hasFocus,
-                                                       int row, int column) {
-
-            Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-
-            String status = table.getValueAt(row, 1).toString(); // 상태 열은 1번째 열
-
-            // 상태값에 따른 배경색 지정
-            if ("비어 있음".equals(status)) {
-                c.setBackground(new Color(198, 239, 206)); // 연두색
-            } else {
-                c.setBackground(new Color(255, 199, 206)); // 연분홍색
+        timeTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus,
+                    int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                String status = table.getValueAt(row, 1).toString();
+                // 비어 있으면 초록, 예약 대기/예약 등은 빨강
+                if ("비어 있음".equals(status)) {
+                    c.setBackground(new Color(198, 239, 206));
+                } else {
+                    c.setBackground(new Color(255, 199, 206));
+                }
+                if (isSelected) {
+                    c.setBackground(new Color(100, 149, 237));
+                    c.setForeground(Color.WHITE);
+                } else {
+                    c.setForeground(Color.BLACK);
+                }
+                return c;
             }
+        });
+    }
 
-            if (isSelected) {
-                c.setBackground(new Color(100, 149, 237)); // 선택 시 파란색
-                c.setForeground(Color.WHITE);
-            } else {
-                c.setForeground(Color.BLACK);
-            }
-
-            return c;
-        }
-    });
-}
     private List<Reservation> fetchReservationsFromServer() {
         try {
             Message request = new Message();
@@ -86,34 +90,59 @@ public class ReservationFrame extends javax.swing.JFrame {
             return new ArrayList<>();
         }
     }
-    private List<RoomStatus> fetchScheduleFromServer(String dayOfWeek, String roomNumber) {
-    try {
-        Map<String, String> payload = new HashMap<>();
-        payload.put("day", dayOfWeek);
-        payload.put("room", roomNumber);
 
-        Message req = new Message();
-        req.setDomain("timetable");
-        req.setType(RequestType.LOAD_TIMETABLE);
-        req.setPayload(payload);
+    // ReservationFrame 클래스 내부에 추가
+    private List<Room> fetchRoomsFromServer() {
+        try {
+            Message req = new Message();
+            req.setDomain("room");
+            req.setType(RequestType.LOAD_ROOMS);
 
-        ClientMain.out.writeObject(req);
-        ClientMain.out.flush();
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
 
-        Message res = (Message) ClientMain.in.readObject();
-
-        if (res.getError() != null) {
-            JOptionPane.showMessageDialog(this, "스케줄 불러오기 실패: " + res.getError());
+            Message res = (Message) ClientMain.in.readObject();
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "강의실 목록 불러오기 실패: " + res.getError());
+                return Collections.emptyList();
+            }
+            // 서버는 payload 에 List<Room> 을 담아 보냄
+            return (List<Room>) res.getPayload();
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "서버 통신 오류: " + e.getMessage());
             return Collections.emptyList();
         }
-
-        return (List<RoomStatus>) res.getPayload();
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(this, "통신 오류: " + e.getMessage());
-        e.printStackTrace();
-        return Collections.emptyList();
     }
-}
+
+    private List<RoomStatus> fetchScheduleFromServer(String date, String roomNumber) {
+        try {
+            Map<String, String> payload = new HashMap<>();
+            payload.put("date", date);
+            payload.put("room", roomNumber);
+
+            Message req = new Message();
+            req.setDomain("timetable");
+            req.setType(RequestType.LOAD_TIMETABLE);
+            req.setPayload(payload);
+
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+
+            Message res = (Message) ClientMain.in.readObject();
+
+            if (res.getError() != null) {
+                JOptionPane.showMessageDialog(this, "스케줄 불러오기 실패: " + res.getError());
+                return Collections.emptyList();
+            }
+
+            return (List<RoomStatus>) res.getPayload();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "통신 오류: " + e.getMessage());
+            e.printStackTrace();
+            return Collections.emptyList();
+        }
+    }
 
     private void updateTimeTable(List<RoomStatus> statusList) {
         DefaultTableModel model = (DefaultTableModel) timeTable.getModel(); // 🔸 timeTable = JTable
@@ -125,71 +154,111 @@ public class ReservationFrame extends javax.swing.JFrame {
 
         applyTableColoring();
     }
-    
+
     private void handleRoomButtonClick(String roomNumber) {
         lastSelectedRoom = roomNumber;
-
+        // 0) 서버에서 강의실 상태 조회
+        List<Room> rooms = fetchRoomsFromServer();
+        Room room = rooms.stream()
+                .filter(r -> r.getRoomId().equals(roomNumber))
+                .findFirst()
+                .orElse(null);
+        if (room == null) {
+            JOptionPane.showMessageDialog(this, "해당 강의실 정보를 찾을 수 없습니다.");
+            return;
+        }
+        if (room.getAvailability() == Room.Availability.CLOSED) {
+            // CLOSED 일 때만 차단 메시지 띄우고 중단
+            JOptionPane.showMessageDialog(
+                    this,
+                    "해당 강의실은 차단되었습니다.\n사유: " + room.getCloseReason(),
+                    "강의실 차단 안내",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        // 1) 선택된 날짜 → 요일 계산
         String year = (String) yearComboBox.getSelectedItem();
         String month = (String) monthComboBox.getSelectedItem();
         String day = (String) dayComboBox.getSelectedItem();
-
-        LocalDate date = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), Integer.parseInt(day));
-        DayOfWeek dow = date.getDayOfWeek(); // MONDAY ~ SUNDAY
+        LocalDate date = LocalDate.of(
+                Integer.parseInt(year),
+                Integer.parseInt(month),
+                Integer.parseInt(day)
+        );
+        DayOfWeek dow = date.getDayOfWeek();
         String dayKor = switch (dow) {
-            case MONDAY -> "월";
-            case TUESDAY -> "화";
-            case WEDNESDAY -> "수";
-            case THURSDAY -> "목";
-            case FRIDAY -> "금";
-            case SATURDAY -> "토";
-            case SUNDAY -> "일";
+            case MONDAY ->
+                "월";
+            case TUESDAY ->
+                "화";
+            case WEDNESDAY ->
+                "수";
+            case THURSDAY ->
+                "목";
+            case FRIDAY ->
+                "금";
+            case SATURDAY ->
+                "토";
+            case SUNDAY ->
+                "일";
         };
 
-        // 🟡 1. 서버에서 해당 요일의 시간표 상태 받아오기 (예약 여부 등)
-        List<RoomStatus> statusList = fetchScheduleFromServer(dayKor, roomNumber);
+        // 2) 서버에서 예약(=RoomStatus) 불러오기
+        String dateString = date.toString();  // date는 LocalDate 변수
+        List<RoomStatus> statusList = fetchScheduleFromServer(dateString, roomNumber);
+        Map<String, String> statusMap = statusList.stream()
+                .collect(Collectors.toMap(RoomStatus::getTimeSlot, RoomStatus::getStatus));
 
-        // 🟡 2. 서버에서 해당 강의실의 수업 시간표(schedule_XXX.txt) 받아오기
+        // 3) 서버에서 수업 일정 불러오기
         List<String> scheduleLines = controller.loadScheduleFile(roomNumber);
-
-        // 🟡 3. 수업 시간 매핑: 시간 → 과목명 (교수명)
         Map<String, String> classMap = new HashMap<>();
         for (String line : scheduleLines) {
             String[] parts = line.split(",");
-            if (parts.length >= 4) {
+            // parts[0]=요일, parts[1]=시간, parts[2]=과목, parts[3]=교수
+            if (parts.length >= 4 && parts[0].equals(dayKor)) {
                 classMap.put(parts[1], parts[2] + " (" + parts[3] + ")");
             }
         }
 
-        // 🟡 4. 전체 시간 슬롯 정의
+        // 4) 통합 표시: 수업 일정 우선 → 예약 상태 → 빈 칸
         String[] timeSlots = {
             "09:00~09:50", "10:00~10:50", "11:00~11:50",
             "12:00~12:50", "13:00~13:50", "14:00~14:50",
             "15:00~15:50", "16:00~16:50"
         };
 
-        // 🟡 5. 테이블 갱신
         DefaultTableModel model = (DefaultTableModel) timeTable.getModel();
         model.setRowCount(0);
-        model.setColumnIdentifiers(new String[] { "시간", "상태" });
-
-        for (String time : timeSlots) {
-            String status = classMap.getOrDefault(time, "비어 있음");
-            model.addRow(new Object[] { time, status });
+        model.setColumnIdentifiers(new String[]{"시간", "상태"});
+        for (String t : timeSlots) {
+            String display;
+            if (classMap.containsKey(t)) {
+                display = classMap.get(t);
+            } else if (statusMap.containsKey(t)) {
+                display = statusMap.get(t);
+            } else {
+                display = "비어 있음";
+            }
+            model.addRow(new Object[]{t, display});
         }
 
-        applyTableColoring(); // ✅ 배경색 적용 함수 (이미 정의되어 있음)
+        applyTableColoring();
     }
 
-
-
-
     // 🔸 예약 요청 처리
-
     private void handleReservationRequest() {
         int selectedRow = timeTable.getSelectedRow();
-
         if (selectedRow == -1) {
             JOptionPane.showMessageDialog(this, "시간대를 선택하세요.");
+            return;
+        }
+        String status = timeTable.getValueAt(selectedRow, 1).toString();
+
+        if ("예약".equals(status)
+                || "예약 대기".equals(status)
+                || "수업".equals(status)) {
+            JOptionPane.showMessageDialog(this, "다른 시간을 선택해주세요.");
             return;
         }
 
@@ -199,28 +268,22 @@ public class ReservationFrame extends javax.swing.JFrame {
         String day = (String) dayComboBox.getSelectedItem();
         String date = year + "-" + month + "-" + day;
         String room = lastSelectedRoom;
-        String name = user.getName();  // 🔸 변경됨
+        String name = user.getName();
 
         try {
             ReservationResult result = controller.processReservationRequest(date, time, room, name);
-
-            switch (result) {
-                case SUCCESS -> {
-                    JOptionPane.showMessageDialog(this, "예약이 완료되었습니다.");
-                    this.dispose(); // 현재 프레임 닫기
-                    new ReservationFrame(user).setVisible(true); // 새로고침 효과
-                }
-                case TIME_OCCUPIED -> JOptionPane.showMessageDialog(this, "이미 예약된 시간입니다. 다른 시간을 선택해주세요.");
-                case NOT_SELECTED -> JOptionPane.showMessageDialog(this, "시간대를 선택하세요.");
-                case ERROR -> JOptionPane.showMessageDialog(this, "예약 중 오류가 발생했습니다.");
+            if (result == ReservationResult.SUCCESS) {
+                JOptionPane.showMessageDialog(this, "예약이 완료되었습니다.");
+            } else {
+                JOptionPane.showMessageDialog(this, "예약 중 오류가 발생했습니다.");
             }
+            // 테이블 새로고침
+            handleRoomButtonClick(room);
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "서버 통신 중 오류 발생: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "서버 통신 오류: " + e.getMessage());
         }
     }
-
-
 
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
@@ -558,7 +621,7 @@ public class ReservationFrame extends javax.swing.JFrame {
         RMF.setVisible(true);
     }//GEN-LAST:event_backBtnActionPerformed
 
- // 메인 임시삭제
+    // 메인 임시삭제
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Btn908;
