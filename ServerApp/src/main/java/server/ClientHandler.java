@@ -83,6 +83,18 @@ public class ClientHandler extends Thread {
                             response.setError("❌ 아이디 또는 비밀번호가 틀렸습니다.");
                         }
                     }
+                    if (msg.getType() == RequestType.LOGOUT) {
+                        System.out.println("[Server] : 클라이언트 로그아웃 요청 받음");
+
+                        Server.connectionManager.remove(socket);
+
+                        response.setType(RequestType.INFO);
+                        response.setPayload("LOGOUT_SUCCESS");
+                        out.writeObject(response);
+                        out.flush();
+
+                        break;  // 메시지 루프 종료 -> finally 블록에서 소켓도 닫힘
+                    }
 
                     // 메시지 타입별 분기 처리
                     if (msg.getDomain().equals("user")) {

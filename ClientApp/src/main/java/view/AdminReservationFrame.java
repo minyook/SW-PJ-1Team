@@ -516,12 +516,15 @@ public class AdminReservationFrame extends javax.swing.JFrame {
     private void logoutButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logoutButtonActionPerformed
         // TODO add your handling code here:
         try {
-            Message req = new Message();
-            req.setDomain("user");
-            req.setType(RequestType.DISCONNECT);
-            req.setPayload(null);
-            ClientMain.out.writeObject(req);
+            Message logoutMsg = new Message();
+            logoutMsg.setDomain("user");
+            logoutMsg.setType(RequestType.LOGOUT);  // 새로운 타입 정의 필요
+            ClientMain.out.writeObject(logoutMsg);
             ClientMain.out.flush();
+
+            // 클라이언트 소켓 종료
+            ClientMain.socket.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
