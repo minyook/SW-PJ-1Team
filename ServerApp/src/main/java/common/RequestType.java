@@ -19,5 +19,6 @@ public enum RequestType {
     LOAD_SCHEDULE_ENTRIES,
     SAVE_SCHEDULE_ENTRY,
     DISCONNECT,
-    MAX_CLIENTS
+    MAX_CLIENTS,
+    INFO
 }

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package view;
 
 import client.ClientMain;
@@ -9,82 +5,60 @@ import common.Message;
 import common.RequestType;
 import common.User;
 import controller.LoginController;
-import javax.swing.*;
-import java.awt.event.ActionListener;
-import controller.LoginController;
 import controller.RegisterController;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.Socket;
 import view.RegisterView;
 
+import javax.swing.*;
+import java.awt.event.ActionListener;
 
-/**
- *
- * @author 00rya
- */
 public class LoginView extends javax.swing.JFrame {
 
-    /**
-     * Creates new form LoginView
-     */
+    private ActionListener loginActionListener;  // ✅ 컨트롤러에서 전달받는 리스너
+
     public LoginView() {
-    try {
-        System.out.println("🟡 LoginView 생성자 진입");
-        initComponents();
-        setLocationRelativeTo(null);
-        setVisible(true);
-        System.out.println("🟢 LoginView.setVisible(true) 호출 완료");
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(null, "❗ LoginView 내부 오류: " + e.getMessage());
+        try {
+            initComponents();
+            setLocationRelativeTo(null);
+            setVisible(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "❗ LoginView 내부 오류: " + e.getMessage());
+        }
     }
-}
 
+    public void setLoginAction(ActionListener listener) {
+        this.loginActionListener = listener;
+    }
 
+    public void setRegisterAction(ActionListener listener) {
+        jButton1.addActionListener(listener);
+    }
 
-    // 필드 초기화 (로그인 실패 시)
+    public String getUsername() {
+        return ID.getText().trim();
+    }
+
+    public String getPassword() {
+        return new String(Password.getPassword()).trim();
+    }
+
+    public void showMessage(String msg) {
+        JOptionPane.showMessageDialog(this, msg);
+    }
+
+    public void showError(String msg) {
+        JOptionPane.showMessageDialog(this, msg, "오류", JOptionPane.ERROR_MESSAGE);
+    }
+
+    public void setLoginEnabled(boolean enabled) {
+        jButton2.setEnabled(enabled);
+    }
+
     public void resetFields() {
         ID.setText("");
         Password.setText("");
         ID.requestFocus();
     }
-
-    // 입력된 아이디 반환
-    public String getUsername() {
-        return ID.getText().trim();
-    }
-
-    // 입력된 비밀번호 반환
-    public String getPassword() {
-        return new String(Password.getPassword()).trim();
-    }
-
-    // 팝업 메시지 출력
-    public void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message);
-    }
-
-    // 로그인 버튼에 리스너 등록
-    public void setLoginAction(ActionListener listener) {
-        jButton2.addActionListener(listener);
-    }
-
-    // 회원가입 버튼 리스너 (수정 필요 시 여기에 추가)
-    public void setRegisterAction(ActionListener listener) {
-        jButton1.addActionListener(listener); // 회원가입 버튼 (예: jButton1)
-    }
-    
-    /**
-    * 로그인 버튼 활성/비활성
-    */
-   public void setLoginEnabled(boolean enabled) {
-       jButton2.setEnabled(enabled);
-   }
-    
-    /**
-    * 로그인 버튼 활성/비활성
-    */
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -241,49 +215,13 @@ public class LoginView extends javax.swing.JFrame {
     }//GEN-LAST:event_IDActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        String id = ID.getText();
-    String pw = new String(Password.getPassword());
+        System.out.println("✅ 로그인 버튼 눌림");
 
-    try {
-        // ✅ 소켓 재연결 (로그아웃 후 다시 접속하는 경우 대비)
-        ClientMain.socket = new Socket(ClientMain.serverIP, ClientMain.serverPort);
-        ClientMain.out = new ObjectOutputStream(ClientMain.socket.getOutputStream());
-        ClientMain.out.flush();
-        ClientMain.in = new ObjectInputStream(ClientMain.socket.getInputStream());
+        // 🔥 여기서 직접 컨트롤러 메서드 호출
+        String id = getUsername();
+        String pw = getPassword();
 
-        Message req = new Message();
-        req.setDomain("user");
-        req.setType(RequestType.LOGIN);
-        req.setPayload(new User(id, pw));
-
-        System.out.println("📤 로그인 요청 전송 시작");
-        ClientMain.out.writeObject(req);
-        ClientMain.out.flush();
-        System.out.println("📤 로그인 요청 전송 완료");
-
-        Message response = (Message) ClientMain.in.readObject();
-
-        if (response.getError() != null) {
-            showMessage("❌ 로그인 실패: " + response.getError());
-            resetFields();
-        } else {
-            User user = (User) response.getPayload();
-            System.out.println(user.getUsername());
-            showMessage("✅ 로그인 성공: " + user.getUsername());
-
-            if ("a".equals(user.getRole())) {
-                new AdminReservationFrame(user).setVisible(true);
-            } else {
-                new ReservationMainFrame(user).setVisible(true);
-            }
-
-            dispose();
-        }
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        showMessage("서버 연결 중 오류 발생: " + e.getMessage());
-    }
+        new LoginController(this).login(id, pw);
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -299,7 +237,7 @@ public class LoginView extends javax.swing.JFrame {
     public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(() -> {
             LoginView view = new LoginView();
-            LoginController controller = new LoginController(view); // ✅ 서버와 통신할 컨트롤러
+            new LoginController(view);  // ✅ 컨트롤러에 View 전달
             view.setVisible(true);
         });
     }

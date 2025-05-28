@@ -46,6 +46,8 @@ public class ClientHandler extends Thread {
     public void run() {
         boolean slotAcquired = false;
         try {
+            // 🔒 동시 접속 제한 확인
+            slotAcquired = true; // 접속 허용
             // 스트림 초기화
             out = new ObjectOutputStream(socket.getOutputStream());
             out.flush();
@@ -62,6 +64,25 @@ public class ClientHandler extends Thread {
                     Message response = new Message();
                     response.setDomain(msg.getDomain());
                     response.setType(msg.getType());
+                    
+                    if (msg.getType() == RequestType.LOGIN) {
+                        User loginUser = (User) msg.getPayload();
+
+                        if (isValidUser(loginUser)) {
+                            if (Server.connectionManager.canAccept()) {
+                                Server.connectionManager.add(socket);  // 🔥 여기서만 접속자 수 증가
+                                response.setPayload(loginUser);
+                            } else {
+                                response.setType(RequestType.INFO);
+                                response.setPayload("WAIT");
+                                out.writeObject(response);
+                                out.flush();
+                                continue;
+                            }
+                        } else {
+                            response.setError("❌ 아이디 또는 비밀번호가 틀렸습니다.");
+                        }
+                    }
 
                     // 메시지 타입별 분기 처리
                     if (msg.getDomain().equals("user")) {
@@ -152,7 +173,37 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             System.err.println("[Server] : 소켓 설정 중 오류: " + e.getMessage());
             e.printStackTrace();
+        }finally {
+            Server.connectionManager.remove(socket);  // 소켓 종료 시 등록 해제
+            try {
+                socket.close();
+            } catch (IOException ignored) {}
         }
+    }
+    private boolean isValidUser(User loginUser) {
+        String id = loginUser.getUsername();
+        String pw = loginUser.getPassword();
+
+        File file = new File("storage/user.txt");
+        if (!file.exists()) return false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 2) {
+                    String fileId = parts[0].trim();
+                    String filePw = parts[1].trim();
+                    if (id.equals(fileId) && pw.equals(filePw)) {
+                        return true;  // ✅ 로그인 성공
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return false;  // ❌ 로그인 실패
     }
 
     private User findUser(String id, String pw) {

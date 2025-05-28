@@ -10,6 +10,7 @@ public class Server {
     private static final int PORT = 9999;
     public static final AtomicInteger activeCount = new AtomicInteger(0);
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
+    public static final ConnectionManager connectionManager = new ConnectionManager();
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {

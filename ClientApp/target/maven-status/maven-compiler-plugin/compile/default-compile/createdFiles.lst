@@ -2,9 +2,7 @@ client\SocketClient.class
 common\User.class
 view\MyReservationFrame.class
 view\ReservationFrame$5.class
-controller\LoginController$LoginAction.class
 view\ReservationFrame$1.class
-controller\LoginController$LoginAction$1.class
 controller\MyReservationController.class
 view\MyReservationFrame$3.class
 view\ReservationFrame$8.class

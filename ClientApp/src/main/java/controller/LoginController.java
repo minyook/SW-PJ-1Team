@@ -1,83 +1,78 @@
 package controller;
 
 import client.ClientMain;
-import client.SocketClient;
-import common.Message;
-import common.RequestType;
-import common.User;
-import view.LoginView;
-import view.ReservationMainFrame;
-import view.AdminReservationFrame;
+import common.*;
+import view.*;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
 
 public class LoginController {
     private final LoginView view;
+
     public LoginController(LoginView view) {
         this.view = view;
-        view.setLoginAction(new LoginAction());
     }
 
-    private class LoginAction implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            view.setLoginEnabled(false);
-            view.showMessage("로그인 중…");
+    public void login(String id, String pw) {
+        view.setLoginEnabled(false);
 
-            new SwingWorker<Message, String>() {
-                @Override
-                protected Message doInBackground() throws Exception {
-                    // --- 로그인 요청 보내기 ---
-                    Message req = new Message();
-                    req.setDomain("user");
-                    req.setType(RequestType.LOGIN);
-                    req.setPayload(new User(view.getUsername(), view.getPassword()));
-                    ClientMain.out.writeObject(req);
-                    ClientMain.out.flush();
+        try {
+            ClientMain.socket = new Socket(ClientMain.serverIP, ClientMain.serverPort);
+            ClientMain.out = new ObjectOutputStream(ClientMain.socket.getOutputStream());
+            ClientMain.out.flush();
+            ClientMain.in = new ObjectInputStream(ClientMain.socket.getInputStream());
 
-                    // --- 서버 응답 반복 읽기 ---
-                    while (!isCancelled()) {
-                        Message resp = SocketClient.send(req);
-                        if (resp.getError() != null && resp.getError().contains("대기열")) {
-                            System.out.println("📤 로그인 대기중");
-                            SwingUtilities.invokeLater(() ->
-                                view.showMessage(resp.getError())
-                            );
-                            Thread.sleep(200);
-                            continue;
-                        }
-                        return resp;
-                    }
-                    // 취소된 경우
-                    Message cancelled = new Message();
-                    cancelled.setError("취소됨");
-                    return cancelled;
-                }
+            Message req = new Message();
+            req.setDomain("user");
+            req.setType(RequestType.LOGIN);
+            req.setPayload(new User(id, pw));
 
-                @Override
-                protected void done() {
+            ClientMain.out.writeObject(req);
+            ClientMain.out.flush();
+
+            Message response = (Message) ClientMain.in.readObject();
+
+            if (response.getType() == RequestType.INFO) {
+                String status = (String) response.getPayload();
+                if ("WAIT".equals(status)) {
+                    view.showError("현재 접속 인원이 많아 대기 큐에 등록되었습니다.");
                     view.setLoginEnabled(true);
-                    if (isCancelled()) return;
-                    try {
-                        Message res = get();
-                        if (res.getError() != null) {
-                            view.showMessage("❌ 로그인 실패: " + res.getError());
-                            view.resetFields();
-                        } else {
-                            User user = (User) res.getPayload();
-                            view.showMessage("✅ 로그인 성공: " + user.getUsername());
-                            new ReservationMainFrame(user).setVisible(true);
-                            view.dispose();
-                        }
-                    } catch (Exception ex) {
-                        view.showMessage("서버 통신 오류: " + ex.getMessage());
-                    }
+                    return;
+                } else if ("CONNECTED".equals(status)) {
+                    view.showError("대기 중이던 접속이 허용되었습니다. 다시 로그인해주세요.");
+                    view.setLoginEnabled(true);
+                    return;
                 }
-            }.execute();
+            }
+
+            if (response.getError() != null) {
+                view.showError("❌ 로그인 실패: " + response.getError());
+                view.resetFields();
+                view.setLoginEnabled(true);
+                return;
+            }
+
+            User user = (User) response.getPayload();
+            view.showMessage("✅ 로그인 성공: " + user.getUsername());
+
+            if ("a".equals(user.getRole())) {
+                new AdminReservationFrame(user).setVisible(true);
+            } else {
+                new ReservationMainFrame(user).setVisible(true);
+            }
+
+            view.dispose();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            view.showError("서버 연결 중 오류 발생: " + ex.getMessage());
+            view.setLoginEnabled(true);
         }
     }
 }
+
