@@ -3,6 +3,7 @@ model\AdminReservationModelTest.class
 controller\UserControllerTest$LoginTests.class
 controller\AdminReservationControllerTest.class
 controller\ScheduleControllerTest$StubScheduleModel.class
+controller\MyReservationControllerTest$FakeReservationModel.class
 controller\ReservationControllerTest$1.class
 controller\ReservationControllerTest$StubReservationModel.class
 controller\UserControllerTest$RegisterTests.class
