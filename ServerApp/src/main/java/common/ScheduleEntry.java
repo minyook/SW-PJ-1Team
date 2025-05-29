@@ -5,7 +5,6 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 public class ScheduleEntry implements Serializable {
-    private static final long serialVersionUID = 1L;
     private DayOfWeek day;
     private LocalTime startTime;
     private LocalTime endTime;
@@ -90,6 +89,7 @@ public class ScheduleEntry implements Serializable {
         };
     }
 
+
     // 🔸 DayOfWeek → 한글 요일
     private String convertEnumToKorDay(DayOfWeek day) {
         return switch (day) {
@@ -103,19 +103,6 @@ public class ScheduleEntry implements Serializable {
         };
     }
 
-    // 오버라이드 toString() 추가
-    @Override
-    public String toString() {
-        String dayKor = convertEnumToKorDay(day);
-        return String.format("%s %s~%s | %s | %s",
-                dayKor,
-                startTime,
-                endTime,
-                courseName,
-                professorName
-        );
-    }
-
     // 기존 getter
     public DayOfWeek getDay()            { return day; }
     public LocalTime getStartTime()      { return startTime; }
@@ -126,4 +113,4 @@ public class ScheduleEntry implements Serializable {
     // 새 getter
     public String getCourseName()        { return courseName; }
     public String getProfessorName()     { return professorName; }
-}
+} 
