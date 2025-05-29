@@ -18,19 +18,19 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReservationControllerTest {
 
     // 매 테스트마다 새 임시 디렉토리
-    @TempDir 
+    @TempDir
     Path tempDir;
 
     private Path dummyFile;
     private ReservationController controller;
     private StubReservationModel stubModel;
 
-    /** 
-     * ReservationModel을 상속해 
-     * 파일 경로만 주입받고 실제 로드/저장은 override,
+    /**
+     * ReservationModel을 상속해 파일 경로만 주입받고 실제 로드/저장은 override,
      * LIST/CREATE/DELETE/UPDATE만 기록하도록 만듭니다.
      */
     static class StubReservationModel extends ReservationModel {
+
         List<Reservation> listAllReturn = List.of();
         Reservation created;
         int deletedIndex = -1;
@@ -71,15 +71,15 @@ class ReservationControllerTest {
         Files.createFile(dummyFile);
 
         // 2) Stub 모델에 파일 경로 주입, 컨트롤러 초기화
-        stubModel  = new StubReservationModel(dummyFile);
+        stubModel = new StubReservationModel(dummyFile);
         controller = new ReservationController(stubModel);
     }
 
     @Test
     void testListDelegatesToModel() {
         // 주어진 리스트를 stub이 반환하도록 설정
-        Reservation r1 = new Reservation("R1","2025-06-01","10:00~10:50","901","user1","예약");
-        Reservation r2 = new Reservation("R2","2025-06-02","11:00~11:50","902","user2","예약");
+        Reservation r1 = new Reservation("R1", "2025-06-01", "10:00~10:50", "901", "user1", "예약");
+        Reservation r2 = new Reservation("R2", "2025-06-02", "11:00~11:50", "902", "user2", "예약");
         stubModel.listAllReturn = Arrays.asList(r1, r2);
 
         Message req = new Message();
@@ -95,6 +95,22 @@ class ReservationControllerTest {
         System.err.println("=== LIST 결과 ===");
         res.getList().forEach(System.err::println);
         System.err.println("================");
+    }
+
+    @Test
+    void testCreateDelegatesToModel() {
+        // GIVEN
+        Reservation newRes = new Reservation(null, "2025-06-03", "12:00~12:50", "903", "user3", "예약");
+        Message req = new Message();
+        req.setType(RequestType.CREATE);
+        req.setPayload(newRes);
+
+        // WHEN
+        controller.handle(req);
+
+        // THEN
+        assertSame(newRes, stubModel.created);
+        assertNull(req.getError());
     }
 
     @Test
