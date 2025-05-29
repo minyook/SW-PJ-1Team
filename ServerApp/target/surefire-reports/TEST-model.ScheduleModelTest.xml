@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="model.ScheduleModelTest" time="0.173" tests="3" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="model.ScheduleModelTest" time="0.029" tests="3" errors="0" skipped="0" failures="0">
   <properties>
-    <property name="jpda.address" value="63817"/>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
     <property name="sun.jnu.encoding" value="MS949"/>
@@ -11,15 +10,13 @@
     <property name="user.variant" value=""/>
     <property name="java.vendor.url" value="http://www.azul.com/"/>
     <property name="user.timezone" value="Asia/Seoul"/>
-    <property name="forkMode" value="once"/>
     <property name="os.name" value="Windows 11"/>
     <property name="java.vm.specification.version" value="21"/>
-    <property name="user.country" value="KR"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="user.country" value="KR"/>
     <property name="sun.boot.library.path" value="C:\Program Files\zulu21.36.17-ca-jdk21.0.4-win_x64\bin"/>
-    <property name="sun.java.command" value="C:\Users\limmi\AppData\Local\Temp\surefire6667314615806208953\surefirebooter-20250529232008550_3.jar C:\Users\limmi\AppData\Local\Temp\surefire6667314615806208953 2025-05-29T23-20-08_438-jvmRun1 surefire-20250529232008550_1tmp surefire_0-20250529232008550_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\limmi\AppData\Local\Temp\surefire9678673307064777476\surefirebooter-20250529234844203_3.jar C:\Users\limmi\AppData\Local\Temp\surefire9678673307064777476 2025-05-29T23-48-44_067-jvmRun1 surefire-20250529234844203_1tmp surefire_0-20250529234844203_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="test" value="model.ScheduleModelTest"/>
     <property name="surefire.test.class.path" value="C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\target\test-classes;C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\target\classes;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\limmi\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\limmi\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\limmi\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\limmi\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
     <property name="user.home" value="C:\Users\limmi"/>
@@ -33,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\limmi\AppData\Local\Temp\surefire6667314615806208953\surefirebooter-20250529232008550_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\limmi\AppData\Local\Temp\surefire9678673307064777476\surefirebooter-20250529234844203_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.4+7-LTS"/>
@@ -44,9 +41,7 @@
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
-    <property name="jpda.listen" value="true"/>
     <property name="java.vendor.version" value="Zulu21.36+17-CA"/>
-    <property name="maven.ext.class.path" value="C:\Program Files\netbeans\java\maven-nblib\netbeans-eventspy.jar"/>
     <property name="localRepository" value="C:\Users\limmi\.m2\repository"/>
     <property name="java.vendor.url.bug" value="http://www.azul.com/support/"/>
     <property name="java.io.tmpdir" value="C:\Users\limmi\AppData\Local\Temp\"/>
@@ -63,23 +58,22 @@
     <property name="java.vm.version" value="21.0.4+7-LTS"/>
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
-    <property name="maven.surefire.debug" value="-agentlib:jdwp=transport=dt_socket,server=n,address=63817"/>
   </properties>
-  <testcase name="testDeleteRemovesScheduleEntry" classname="model.ScheduleModelTest" time="0.12">
+  <testcase name="testDeleteRemovesScheduleEntry" classname="model.ScheduleModelTest" time="0.01">
     <system-err><![CDATA[=== 삭제 후 스케줄 ===
-common.ScheduleEntry@5a7fe64f
+common.ScheduleEntry@6a370f4
 ===================
 ]]></system-err>
   </testcase>
   <testcase name="testCreateAddsNewScheduleEntry" classname="model.ScheduleModelTest" time="0.006">
     <system-err><![CDATA[=== 항목 추가 후 스케줄 ===
-common.ScheduleEntry@32115b28
-common.ScheduleEntry@2ad48653
-common.ScheduleEntry@6bb4dd34
+common.ScheduleEntry@4cc8eb05
+common.ScheduleEntry@51f116b8
+common.ScheduleEntry@19d481b
 ========================
 ]]></system-err>
   </testcase>
-  <testcase name="testListAllLoadsSchedule" classname="model.ScheduleModelTest" time="0.015">
+  <testcase name="testListAllLoadsSchedule" classname="model.ScheduleModelTest" time="0.007">
     <system-err><![CDATA[=== 전체 스케줄 목록 ===
 WEDNESDAY 16:00~16:50  동계캡스톤 / 이규찬교수님
 THURSDAY 13:00~14:15  데이터베이스 / 김민지교수님
