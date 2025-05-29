@@ -112,7 +112,7 @@ public class AdminRoomController {
     }
 
     // 서버로 상태 전송
-    private boolean updateRoomStatus(Room room) {
+    boolean updateRoomStatus(Room room) {
         try {
             Message req = new Message();
             req.setDomain("room");

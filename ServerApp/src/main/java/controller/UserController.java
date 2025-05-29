@@ -9,7 +9,10 @@ public class UserController {
     private final UserModel model;
 
     public UserController() throws IOException {
-        model = new UserModel();
+        this(new UserModel());
+    }
+     public UserController(UserModel model) {
+        this.model = model;
     }
 
     public Message handle(Message req) {

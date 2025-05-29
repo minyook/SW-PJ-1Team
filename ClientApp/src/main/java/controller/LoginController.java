@@ -4,9 +4,6 @@ import client.ClientMain;
 import common.*;
 import view.*;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -51,14 +48,14 @@ public class LoginController {
             }
 
             if (response.getError() != null) {
-                view.showError("❌ 로그인 실패: " + response.getError());
+                view.showError("로그인 실패: " + response.getError());
                 view.resetFields();
                 view.setLoginEnabled(true);
                 return;
             }
 
             User user = (User) response.getPayload();
-            view.showMessage("✅ 로그인 성공: " + user.getUsername());
+            view.showMessage("로그인 성공: " + user.getUsername());
 
             if ("a".equals(user.getRole())) {
                 new AdminReservationFrame(user).setVisible(true);

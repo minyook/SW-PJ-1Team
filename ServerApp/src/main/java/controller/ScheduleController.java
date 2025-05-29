@@ -1,6 +1,9 @@
+// src/main/java/controller/ScheduleController.java
 package controller;
 
-import common.*;
+import common.Message;
+import common.ScheduleEntry;
+import common.RequestType;
 import model.ScheduleModel;
 
 import java.io.IOException;
@@ -8,8 +11,14 @@ import java.io.IOException;
 public class ScheduleController {
     private final ScheduleModel model;
 
+    // 운영용
     public ScheduleController() throws IOException {
         model = new ScheduleModel();
+    }
+
+    // ★ 테스트용 생성자
+    public ScheduleController(ScheduleModel model) {
+        this.model = model;
     }
 
     public Message handle(Message req) {
