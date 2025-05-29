@@ -64,7 +64,7 @@ public class ClientHandler extends Thread {
                     Message response = new Message();
                     response.setDomain(msg.getDomain());
                     response.setType(msg.getType());
-                    
+
                     if (msg.getType() == RequestType.LOGIN) {
                         User loginUser = (User) msg.getPayload();
 
@@ -185,19 +185,23 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             System.err.println("[Server] : 소켓 설정 중 오류: " + e.getMessage());
             e.printStackTrace();
-        }finally {
+        } finally {
             Server.connectionManager.remove(socket);  // 소켓 종료 시 등록 해제
             try {
                 socket.close();
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
     }
+
     private boolean isValidUser(User loginUser) {
         String id = loginUser.getUsername();
         String pw = loginUser.getPassword();
 
         File file = new File("storage/user.txt");
-        if (!file.exists()) return false;
+        if (!file.exists()) {
+            return false;
+        }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -481,19 +485,31 @@ public class ClientHandler extends Thread {
         return result;
     }
 
+// server 패키지의 ClientHandler 클래스 내
     private List<String> loadRoomSchedule(String roomNumber) {
         List<String> scheduleList = new ArrayList<>();
-        String fileName = "/schedule_" + roomNumber + ".txt";
 
-        try (InputStream is = getClass().getResourceAsStream(fileName); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        // --- 디버그 코드 시작 ---
+        File file = new File("storage/schedule_" + roomNumber + ".txt");
+        System.out.println("[DEBUG] loadRoomSchedule called for room=" + roomNumber);
+        System.out.println("[DEBUG]  → looking at path: " + file.getAbsolutePath());
+        System.out.println("[DEBUG]  → exists? " + file.exists());
+        // --- 디버그 코드 끝 ---
 
+        if (!file.exists()) {
+            System.err.println("📛 시간표 파일이 없습니다: " + file.getAbsolutePath());
+            return scheduleList;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 scheduleList.add(line);
+                // 추가로 한 줄씩도 찍어 봅시다
+                System.out.println("[DEBUG] read line: " + line);
             }
-
-        } catch (IOException | NullPointerException e) {
-            System.err.println("📛 시간표 파일 읽기 실패: " + fileName);
+        } catch (IOException e) {
+            System.err.println("📛 시간표 파일 읽기 중 오류: " + file.getAbsolutePath());
             e.printStackTrace();
         }
 

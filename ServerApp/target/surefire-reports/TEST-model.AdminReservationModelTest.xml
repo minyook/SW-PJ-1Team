@@ -1,78 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="model.AdminReservationModelTest" time="0.127" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="model.AdminReservationModelTest" time="0.004" tests="2" errors="0" skipped="0" failures="0">
   <properties>
-    <property name="jpda.address" value="64476"/>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
     <property name="sun.jnu.encoding" value="MS949"/>
-    <property name="java.class.path" value="C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\target\test-classes;C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\target\classes;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\limmi\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\limmi\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\limmi\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\limmi\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
+    <property name="java.class.path" value="C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp\target\test-classes;C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp\target\classes;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\rbcks\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\rbcks\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
     <property name="java.vm.vendor" value="Azul Systems, Inc."/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="user.variant" value=""/>
     <property name="java.vendor.url" value="http://www.azul.com/"/>
     <property name="user.timezone" value="Asia/Seoul"/>
-    <property name="forkMode" value="once"/>
     <property name="os.name" value="Windows 11"/>
     <property name="java.vm.specification.version" value="21"/>
     <property name="user.country" value="KR"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
-    <property name="sun.boot.library.path" value="C:\Program Files\zulu21.36.17-ca-jdk21.0.4-win_x64\bin"/>
-    <property name="sun.java.command" value="C:\Users\limmi\AppData\Local\Temp\surefire15329153408739563363\surefirebooter-20250530010509324_3.jar C:\Users\limmi\AppData\Local\Temp\surefire15329153408739563363 2025-05-30T01-05-09_211-jvmRun1 surefire-20250530010509324_1tmp surefire_0-20250530010509324_2tmp"/>
+    <property name="sun.boot.library.path" value="C:\jdk_related\zulu21.36.17-ca-fx-jdk21.0.4-win_x64\bin"/>
+    <property name="sun.java.command" value="C:\Users\rbcks\AppData\Local\Temp\surefire14886136072461458295\surefirebooter-20250530040600871_3.jar C:\Users\rbcks\AppData\Local\Temp\surefire14886136072461458295 2025-05-30T04-06-00_766-jvmRun1 surefire-20250530040600871_1tmp surefire_0-20250530040600871_2tmp"/>
     <property name="jdk.debug" value="release"/>
-    <property name="test" value="model.AdminReservationModelTest"/>
-    <property name="surefire.test.class.path" value="C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\target\test-classes;C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp\target\classes;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\limmi\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\limmi\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\limmi\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\limmi\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\limmi\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
+    <property name="surefire.test.class.path" value="C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp\target\test-classes;C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp\target\classes;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\rbcks\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\rbcks\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
-    <property name="user.home" value="C:\Users\limmi"/>
+    <property name="user.home" value="C:\Users\rbcks"/>
     <property name="user.language" value="ko"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="java.version.date" value="2024-07-16"/>
-    <property name="java.home" value="C:\Program Files\zulu21.36.17-ca-jdk21.0.4-win_x64"/>
+    <property name="java.home" value="C:\jdk_related\zulu21.36.17-ca-fx-jdk21.0.4-win_x64"/>
     <property name="file.separator" value="\"/>
-    <property name="basedir" value="C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp"/>
+    <property name="basedir" value="C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp"/>
     <property name="java.vm.compressedOopsMode" value="Zero based"/>
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\limmi\AppData\Local\Temp\surefire15329153408739563363\surefirebooter-20250530010509324_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\rbcks\AppData\Local\Temp\surefire14886136072461458295\surefirebooter-20250530040600871_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.4+7-LTS"/>
-    <property name="user.name" value="limmi"/>
+    <property name="user.name" value="rbcks"/>
     <property name="stdout.encoding" value="MS949"/>
     <property name="path.separator" value=";"/>
     <property name="os.version" value="10.0"/>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="file.encoding" value="UTF-8"/>
     <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
-    <property name="jpda.listen" value="true"/>
     <property name="java.vendor.version" value="Zulu21.36+17-CA"/>
-    <property name="maven.ext.class.path" value="C:\Program Files\netbeans\java\maven-nblib\netbeans-eventspy.jar"/>
-    <property name="localRepository" value="C:\Users\limmi\.m2\repository"/>
+    <property name="maven.ext.class.path" value="C:\jdk_related\netbeans-22\java\maven-nblib\netbeans-eventspy.jar"/>
+    <property name="localRepository" value="C:\Users\rbcks\.m2\repository"/>
     <property name="java.vendor.url.bug" value="http://www.azul.com/support/"/>
-    <property name="java.io.tmpdir" value="C:\Users\limmi\AppData\Local\Temp\"/>
+    <property name="java.io.tmpdir" value="C:\Users\rbcks\AppData\Local\Temp\"/>
     <property name="java.version" value="21.0.4"/>
-    <property name="user.dir" value="C:\Users\limmi\OneDrive\문서\GitHub\SW-PJ-1Team\ServerApp"/>
+    <property name="user.dir" value="C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp"/>
     <property name="os.arch" value="amd64"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="sun.os.patch.level" value=""/>
     <property name="native.encoding" value="MS949"/>
-    <property name="java.library.path" value="C:\Program Files\zulu21.36.17-ca-jdk21.0.4-win_x64\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\apache-maven-3.9.9\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\Program Files\zulu21.36.17-ca-jdk21.0.4-win_x64\bin;C:\Program Files\dotnet\;C:\Program Files (x86)\Windows Kits\10\Windows Performance Toolkit\;C:\opencv\build\x64\vc16\bin;C:\Program Files\nodejs\;C:\Program Files\avr8-gnu-toolchain-win32_x86_64\bin;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\PuTTY\;C:\Users\limmi\AppData\Local\Programs\Python\Python312\Scripts\;C:\Users\limmi\AppData\Local\Programs\Python\Python312\;C:\Users\limmi\AppData\Local\Microsoft\WindowsApps;C:\Users\limmi\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\limmi\AppData\Local\GitHubDesktop\bin;C:\Program Files\JetBrains\PyCharm Community Edition 2024.1.4\bin;;C:\Users\limmi\.dotnet\tools;C:\Users\limmi\AppData\Roaming\npm;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2024.3\bin;;C:\Program Files\JetBrains\IntelliJ IDEA 2024.3\bin;;;."/>
+    <property name="java.library.path" value="C:\jdk_related\zulu21.36.17-ca-fx-jdk21.0.4-win_x64\bin;C:\WINDOWS\Sun\Java\bin;C:\WINDOWS\system32;C:\WINDOWS;C:\Program Files\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\mingw64\bin;C:\Program Files\Git\cmd;C:\Program Files\PuTTY\;C:\Users\rbcks\AppData\Local\Microsoft\WindowsApps;C:\Users\rbcks\AppData\Local\GitHubDesktop\bin;C:\Program Files\Java\jdk-21\bin;C:\Users\rbcks\AppData\Local\Programs\Microsoft VS Code\bin;."/>
     <property name="java.vm.info" value="mixed mode, sharing"/>
     <property name="stderr.encoding" value="MS949"/>
     <property name="java.vendor" value="Azul Systems, Inc."/>
     <property name="java.vm.version" value="21.0.4+7-LTS"/>
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
-    <property name="maven.surefire.debug" value="-agentlib:jdwp=transport=dt_socket,server=n,address=64476"/>
   </properties>
-  <testcase name="testUpdateStatusPersistsChange" classname="model.AdminReservationModelTest" time="0.093">
+  <testcase name="testUpdateStatusPersistsChange" classname="model.AdminReservationModelTest" time="0.002">
     <system-err><![CDATA[=== 상태 업데이트 후 목록 ===
 2025-06-01,10:00~10:50,901,홍길동,예약
 2025-06-02,11:00~11:50,902,김철수,예약대기
 ============================
 ]]></system-err>
   </testcase>
-  <testcase name="testListAllLoadsAllReservations" classname="model.AdminReservationModelTest" time="0.006">
+  <testcase name="testListAllLoadsAllReservations" classname="model.AdminReservationModelTest" time="0.0">
     <system-err><![CDATA[=== 전체 관리자 예약 목록 ===
 2025-06-01,10:00~10:50,901,홍길동,예약대기
 2025-06-02,11:00~11:50,902,김철수,예약대기
