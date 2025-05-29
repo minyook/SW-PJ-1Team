@@ -254,10 +254,9 @@ public class ReservationFrame extends javax.swing.JFrame {
             return;
         }
         String status = timeTable.getValueAt(selectedRow, 1).toString();
+        System.out.println("[DEBUG] 선택된 상태: '" + status + "'");
 
-        if ("예약".equals(status)
-                || "예약 대기".equals(status)
-                || "수업".equals(status)) {
+        if (!"비어 있음".equals(status)) {
             JOptionPane.showMessageDialog(this, "다른 시간을 선택해주세요.");
             return;
         }
