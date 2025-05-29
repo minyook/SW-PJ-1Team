@@ -23,7 +23,7 @@ class ReservationControllerTest {
         Reservation updatedPayload;
 
         public StubReservationModel() throws IOException {
-            super("src/test/resources/does_not_matter.txt");
+            super("does_not_matter.txt");
         }
 
         @Override
@@ -58,6 +58,7 @@ class ReservationControllerTest {
     }
 
     @Test
+    @DisplayName("전체 조회(List) 요청 시 모델의 리스트를 반환한다")
     void listAllDelegatesToModel() {
         Reservation r1 = new Reservation("R1","2025-06-01","10:00~10:50","901","user1","예약");
         Reservation r2 = new Reservation("R2","2025-06-02","11:00~11:50","902","user2","예약");
@@ -75,6 +76,7 @@ class ReservationControllerTest {
     }
 
     @Test
+    @DisplayName("예약 생성(Create) 요청 시 payload를 그대로 반환하고 모델에 전달된다")
     void createDelegatesAndReturnsPayload() {
         Reservation r = new Reservation("R3","2025-06-03","12:00~12:50","903","user3","예약");
         Message req = new Message();
@@ -117,6 +119,7 @@ class ReservationControllerTest {
     }
 
     @Test
+    @DisplayName("지원되지 않는 타입 요청 시 에러 메시지를 반환한다")
     void unsupportedTypeGivesError() throws IOException {
         Message req = new Message();
         req.setType(RequestType.LOGIN);  // null 대신 LOGIN 사용
