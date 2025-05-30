@@ -2,3 +2,5 @@ test,1,s,이규찬
 test2,2,p,교수
 test3,3,a,조교
 test4,4,s,학생
+test5,5,p,교수
+test6,6,a,조교
