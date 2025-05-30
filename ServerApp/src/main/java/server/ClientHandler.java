@@ -691,57 +691,6 @@ public class ClientHandler extends Thread {
                 "일";
         };
     }
-
-    /**
-     * storage/reservation_data.txt에서 주어진 예약 ID(id, 1부터 시작)에 해당하는 줄을 삭제합니다.
-     *
-     * @param id 삭제할 예약 ID
-     * @return 성공했으면 true, 아니면 false
-     */
-    private boolean removeReservationById(String id) {
-        File file = new File("storage/reservation_data.txt");
-        if (!file.exists()) {
-            return false;
-        }
-
-        List<String> kept = new ArrayList<>();
-        boolean removed = false;
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            int currentId = 1;
-            while ((line = reader.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;   // 빈 줄은 건너뛴다
-                }
-                if (String.valueOf(currentId).equals(id)) {
-                    // 이 줄은 삭제(KEEP하지 않음)
-                    removed = true;
-                } else {
-                    kept.add(line);
-                }
-                currentId++;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        if (!removed) {
-            return false;
-        }
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            for (String ln : kept) {
-                writer.write(ln);
-                writer.newLine();
-            }
-            return true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
     
     private boolean removeReservationByInfo(String date, String time, String room) {
         File file = new File("storage/reservation_data.txt");
