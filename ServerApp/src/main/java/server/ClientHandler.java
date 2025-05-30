@@ -117,13 +117,14 @@ public class ClientHandler extends Thread {
                         }
                     } else if (msg.getDomain().equals("reservation")
                             && msg.getType() == RequestType.DELETE) {
-                        // 여기에서 텍스트 파일에서 해당 예약 ID 줄을 삭제하고
-                        // response.setPayload("OK") 또는 "FAIL" 을 반환하도록 합니다.
-                        // 클라이언트가 msg.index에 담아서 보낸 '예약 번호(ID)'를 문자열로 꺼냅니다.
-                        String id = String.valueOf(msg.getIndex());
-                        // 아래에서 구현할 헬퍼(removeReservationById)를 호출해
-                        // 텍스트 파일에서 해당 줄을 삭제하고 성공 여부를 리턴받습니다.
-                        boolean ok = removeReservationById(id);
+                        // 변경: payload 로 받은 날짜·시간·강의실 정보로 삭제
+                        @SuppressWarnings("unchecked")
+                        Map<String, String> info = (Map<String, String>) msg.getPayload();
+                        String date = info.get("date");
+                        String time = info.get("time");
+                        String room = info.get("room");
+
+                        boolean ok = removeReservationByInfo(date, time, room);
                         response.setPayload(ok ? "OK" : "FAIL");
                     } else if (msg.getType() == RequestType.LOAD_TIMETABLE) {
                         @SuppressWarnings("unchecked")
@@ -710,6 +711,9 @@ public class ClientHandler extends Thread {
             String line;
             int currentId = 1;
             while ((line = reader.readLine()) != null) {
+                if (line.trim().isEmpty()) {
+                    continue;   // 빈 줄은 건너뛴다
+                }
                 if (String.valueOf(currentId).equals(id)) {
                     // 이 줄은 삭제(KEEP하지 않음)
                     removed = true;
@@ -726,6 +730,47 @@ public class ClientHandler extends Thread {
         if (!removed) {
             return false;
         }
+
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (String ln : kept) {
+                writer.write(ln);
+                writer.newLine();
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    private boolean removeReservationByInfo(String date, String time, String room) {
+        File file = new File("storage/reservation_data.txt");
+        if (!file.exists()) return false;
+
+        List<String> kept = new ArrayList<>();
+        boolean removed = false;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                // parts[0]=date, parts[1]=time, parts[2]=room
+                if (!removed
+                    && parts.length >= 3
+                    && parts[0].equals(date)
+                    && parts[1].equals(time)
+                    && parts[2].equals(room)) {
+                    removed = true;  // 첫 매치만 삭제
+                    continue;
+                }
+                kept.add(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        if (!removed) return false;
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (String ln : kept) {

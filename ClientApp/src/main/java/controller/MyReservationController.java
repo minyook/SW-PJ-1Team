@@ -5,9 +5,11 @@ import client.SocketClient;
 import common.Message;
 import common.RequestType;
 import common.Reservation;
+import java.util.HashMap;
 import view.MyReservationFrame;
 
 import java.util.List;
+import java.util.Map;
 import javax.swing.JOptionPane;
 import view.ReservationFrame;
 
@@ -56,29 +58,37 @@ public class MyReservationController {
 
     // 삭제 처리
     private void handleDelete() {
-        int row = view.getReservationTable().getSelectedRow();
-        if (row == -1) {
-            JOptionPane.showMessageDialog(view, "취소할 예약을 선택하세요.");
-            return;
-        }
-        // 테이블의 첫 번째 컬럼(예약번호)을 id로 사용
-        String idStr = view.getReservationTable().getValueAt(row, 0).toString();
-        int id = Integer.parseInt(idStr);
-
-        Message req = new Message();
-        req.setDomain("reservation");
-        req.setType(RequestType.DELETE);
-        req.setIndex(id);
-
-        Message res = SocketClient.send(req);
-        if (res != null && res.getError() == null) {
-            JOptionPane.showMessageDialog(view, "예약이 취소되었습니다.");
-            loadMyReservations();
-        } else {
-            JOptionPane.showMessageDialog(view, "취소 실패: "
-                    + (res == null ? "서버 응답 없음" : res.getError()));
-        }
+    int row = view.getReservationTable().getSelectedRow();
+    if (row == -1) {
+        JOptionPane.showMessageDialog(view, "취소할 예약을 선택하세요.");
+        return;
     }
+
+    // 테이블에서 날짜·시간·강의실 값을 꺼냅니다 (컬럼 인덱스 1,2,3)
+    String date = view.getReservationTable().getValueAt(row, 1).toString();
+    String time = view.getReservationTable().getValueAt(row, 2).toString();
+    String room = view.getReservationTable().getValueAt(row, 3).toString();
+
+    Message req = new Message();
+    req.setDomain("reservation");
+    req.setType(RequestType.DELETE);
+
+    // 날짜·시간·강의실 정보를 payload 로 전달
+    Map<String,String> payload = new HashMap<>();
+    payload.put("date", date);
+    payload.put("time", time);
+    payload.put("room", room);
+    req.setPayload(payload);
+
+    Message res = SocketClient.send(req);
+    if (res != null && res.getError() == null) {
+        JOptionPane.showMessageDialog(view, "예약이 취소되었습니다.");
+        loadMyReservations();
+    } else {
+        JOptionPane.showMessageDialog(view, "취소 실패: "
+                + (res == null ? "서버 응답 없음" : res.getError()));
+    }
+}
 
     // 변경 처리 (삭제 후 예약 화면으로)
     private void handleChange() {

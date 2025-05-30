@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="controller.AdminReservationControllerTest" time="0.13" tests="2" errors="0" skipped="0" failures="0">
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report-3.0.xsd" version="3.0" name="controller.AdminReservationControllerTest" time="0.197" tests="2" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.specification.version" value="21"/>
     <property name="sun.cpu.isalist" value="amd64"/>
@@ -15,7 +15,7 @@
     <property name="user.country" value="KR"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
     <property name="sun.boot.library.path" value="C:\jdk_related\zulu21.36.17-ca-fx-jdk21.0.4-win_x64\bin"/>
-    <property name="sun.java.command" value="C:\Users\rbcks\AppData\Local\Temp\surefire14886136072461458295\surefirebooter-20250530040600871_3.jar C:\Users\rbcks\AppData\Local\Temp\surefire14886136072461458295 2025-05-30T04-06-00_766-jvmRun1 surefire-20250530040600871_1tmp surefire_0-20250530040600871_2tmp"/>
+    <property name="sun.java.command" value="C:\Users\rbcks\AppData\Local\Temp\surefire10926595958984759047\surefirebooter-20250530174616321_3.jar C:\Users\rbcks\AppData\Local\Temp\surefire10926595958984759047 2025-05-30T17-46-16_147-jvmRun1 surefire-20250530174616321_1tmp surefire_0-20250530174616321_2tmp"/>
     <property name="jdk.debug" value="release"/>
     <property name="surefire.test.class.path" value="C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp\target\test-classes;C:\Users\rbcks\3.1\SoftwareEngineering\Project\SW-PJ-1Team\ServerApp\target\classes;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-api\5.10.2\junit-jupiter-api-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\opentest4j\opentest4j\1.3.0\opentest4j-1.3.0.jar;C:\Users\rbcks\.m2\repository\org\junit\platform\junit-platform-commons\1.10.2\junit-platform-commons-1.10.2.jar;C:\Users\rbcks\.m2\repository\org\apiguardian\apiguardian-api\1.1.2\apiguardian-api-1.1.2.jar;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-params\5.10.2\junit-jupiter-params-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\junit\jupiter\junit-jupiter-engine\5.10.2\junit-jupiter-engine-5.10.2.jar;C:\Users\rbcks\.m2\repository\org\junit\platform\junit-platform-engine\1.10.2\junit-platform-engine-1.10.2.jar;"/>
     <property name="sun.cpu.endian" value="little"/>
@@ -30,7 +30,7 @@
     <property name="line.separator" value="&#10;"/>
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
-    <property name="surefire.real.class.path" value="C:\Users\rbcks\AppData\Local\Temp\surefire14886136072461458295\surefirebooter-20250530040600871_3.jar"/>
+    <property name="surefire.real.class.path" value="C:\Users\rbcks\AppData\Local\Temp\surefire10926595958984759047\surefirebooter-20250530174616321_3.jar"/>
     <property name="user.script" value=""/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
     <property name="java.runtime.version" value="21.0.4+7-LTS"/>
@@ -60,11 +60,11 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="java.class.version" value="65.0"/>
   </properties>
-  <testcase name="testUpdateDelegates" classname="controller.AdminReservationControllerTest" time="0.097">
+  <testcase name="testUpdateDelegates" classname="controller.AdminReservationControllerTest" time="0.135">
     <system-err><![CDATA[UPDATED → idx=0, st=APPROVED
 ]]></system-err>
   </testcase>
-  <testcase name="testListDelegates" classname="controller.AdminReservationControllerTest" time="0.002">
+  <testcase name="testListDelegates" classname="controller.AdminReservationControllerTest" time="0.016">
     <system-err><![CDATA[ADMIN LIST → [2025-06-01,10:00~10:50,901,alice,PENDING, 2025-06-02,11:00~11:50,902,bob,PENDING]
 ]]></system-err>
   </testcase>
