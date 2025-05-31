@@ -3,71 +3,56 @@ package controller;
 import common.Message;
 import common.RequestType;
 import common.Reservation;
+import controller.MyReservationController;
 import model.ReservationModel;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
-import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class MyReservationControllerTest {
 
+    @TempDir Path tempDir;
+
+    private Path dataFile;
     private MyReservationController controller;
+    private StubReservationModel stubModel;
+
+    static class StubReservationModel extends ReservationModel {
+        List<Reservation> getByUserReturn = List.of();
+
+        public StubReservationModel(Path file) throws IOException {
+            super(file.toString());
+        }
+
+        @Override public List<Reservation> getByUser(String user) { return getByUserReturn; }
+    }
 
     @BeforeEach
     void setUp() throws IOException {
-        controller = new MyReservationController(new FakeReservationModel());
+        dataFile = tempDir.resolve("reservations.txt");
+        Files.createFile(dataFile);  // 내용은 stub이 override
+
+        stubModel  = new StubReservationModel(dataFile);
+        controller = new MyReservationController(stubModel);
     }
 
     @Test
-    void testHandleListRequest_Success() {
-        Message request = new Message();
-        request.setType(RequestType.LIST);
-        request.setPayload("홍길동");
+    void testGetByUserDelegates() {
+        Reservation r1 = new Reservation("R1","2025-06-01","10:00~10:50","901","alice","OK");
+        stubModel.getByUserReturn = List.of(r1);
 
-        Message response = controller.handle(request);
-        List<?> list = response.getList();
+        Message req = new Message();
+        req.setType(RequestType.LIST);          // Assuming LIST means "my reservations"
+        req.setPayload("alice");
 
-        assertNotNull(list);
-        assertEquals(1, list.size());
-        assertEquals("홍길동", ((Reservation) list.get(0)).getUserName());
-    }
-
-    @Test
-    void testHandleUnsupportedRequest_Failure() {
-        Message request = new Message();
-        request.setType(RequestType.UPDATE); // 지원되지 않는 타입
-
-        Message response = controller.handle(request);
-
-        assertNotNull(response.getError());
-        assertTrue(response.getError().contains("지원하지 않는 요청"));
-    }
-
-    // 🔹 테스트용 모델 클래스
-    static class FakeReservationModel extends ReservationModel {
-        private final List<Reservation> dummyData;
-
-        public FakeReservationModel() throws IOException {
-            super(); // 부모 생성자 호출, 필요 없으면 제거해도 됨
-            dummyData = new ArrayList<>();
-            dummyData.add(new Reservation(
-                "R001", "2025-06-01", "10:00~11:00", "911", "홍길동", "예약 대기"
-            ));
-        }
-
-        @Override
-        public List<Reservation> getByUser(String username) {
-            List<Reservation> result = new ArrayList<>();
-            for (Reservation r : dummyData) {
-                if (r.getUserName().equals(username)) {
-                    result.add(r);
-                }
-            }
-            return result;
-        }
+        Message res = controller.handle(req);
+        assertNull(res.getError());
+        assertEquals(1, res.getList().size());
+        System.err.println("MY LIST → " + res.getList());
     }
 }

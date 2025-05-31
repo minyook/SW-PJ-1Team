@@ -72,7 +72,7 @@ public class RegisterView extends javax.swing.JFrame {
             }
         });
 
-        rol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "학생", "교수" }));
+        rol.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "학생", "교수", "조교" }));
         rol.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 rolActionPerformed(evt);

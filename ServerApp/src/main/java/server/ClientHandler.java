@@ -64,7 +64,7 @@ public class ClientHandler extends Thread {
                     Message response = new Message();
                     response.setDomain(msg.getDomain());
                     response.setType(msg.getType());
-                    
+
                     if (msg.getType() == RequestType.LOGIN) {
                         User loginUser = (User) msg.getPayload();
 
@@ -117,13 +117,14 @@ public class ClientHandler extends Thread {
                         }
                     } else if (msg.getDomain().equals("reservation")
                             && msg.getType() == RequestType.DELETE) {
-                        // 여기에서 텍스트 파일에서 해당 예약 ID 줄을 삭제하고
-                        // response.setPayload("OK") 또는 "FAIL" 을 반환하도록 합니다.
-                        // 클라이언트가 msg.index에 담아서 보낸 '예약 번호(ID)'를 문자열로 꺼냅니다.
-                        String id = String.valueOf(msg.getIndex());
-                        // 아래에서 구현할 헬퍼(removeReservationById)를 호출해
-                        // 텍스트 파일에서 해당 줄을 삭제하고 성공 여부를 리턴받습니다.
-                        boolean ok = removeReservationById(id);
+                        // 변경: payload 로 받은 날짜·시간·강의실 정보로 삭제
+                        @SuppressWarnings("unchecked")
+                        Map<String, String> info = (Map<String, String>) msg.getPayload();
+                        String date = info.get("date");
+                        String time = info.get("time");
+                        String room = info.get("room");
+
+                        boolean ok = removeReservationByInfo(date, time, room);
                         response.setPayload(ok ? "OK" : "FAIL");
                     } else if (msg.getType() == RequestType.LOAD_TIMETABLE) {
                         @SuppressWarnings("unchecked")
@@ -185,19 +186,23 @@ public class ClientHandler extends Thread {
         } catch (IOException e) {
             System.err.println("[Server] : 소켓 설정 중 오류: " + e.getMessage());
             e.printStackTrace();
-        }finally {
+        } finally {
             Server.connectionManager.remove(socket);  // 소켓 종료 시 등록 해제
             try {
                 socket.close();
-            } catch (IOException ignored) {}
+            } catch (IOException ignored) {
+            }
         }
     }
+
     private boolean isValidUser(User loginUser) {
         String id = loginUser.getUsername();
         String pw = loginUser.getPassword();
 
         File file = new File("storage/user.txt");
-        if (!file.exists()) return false;
+        if (!file.exists()) {
+            return false;
+        }
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
@@ -481,19 +486,31 @@ public class ClientHandler extends Thread {
         return result;
     }
 
+// server 패키지의 ClientHandler 클래스 내
     private List<String> loadRoomSchedule(String roomNumber) {
         List<String> scheduleList = new ArrayList<>();
-        String fileName = "/schedule_" + roomNumber + ".txt";
 
-        try (InputStream is = getClass().getResourceAsStream(fileName); BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+        // --- 디버그 코드 시작 ---
+        File file = new File("storage/schedule_" + roomNumber + ".txt");
+        System.out.println("[DEBUG] loadRoomSchedule called for room=" + roomNumber);
+        System.out.println("[DEBUG]  → looking at path: " + file.getAbsolutePath());
+        System.out.println("[DEBUG]  → exists? " + file.exists());
+        // --- 디버그 코드 끝 ---
 
+        if (!file.exists()) {
+            System.err.println("📛 시간표 파일이 없습니다: " + file.getAbsolutePath());
+            return scheduleList;
+        }
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 scheduleList.add(line);
+                // 추가로 한 줄씩도 찍어 봅시다
+                System.out.println("[DEBUG] read line: " + line);
             }
-
-        } catch (IOException | NullPointerException e) {
-            System.err.println("📛 시간표 파일 읽기 실패: " + fileName);
+        } catch (IOException e) {
+            System.err.println("📛 시간표 파일 읽기 중 오류: " + file.getAbsolutePath());
             e.printStackTrace();
         }
 
@@ -674,42 +691,35 @@ public class ClientHandler extends Thread {
                 "일";
         };
     }
-
-    /**
-     * storage/reservation_data.txt에서 주어진 예약 ID(id, 1부터 시작)에 해당하는 줄을 삭제합니다.
-     *
-     * @param id 삭제할 예약 ID
-     * @return 성공했으면 true, 아니면 false
-     */
-    private boolean removeReservationById(String id) {
+    
+    private boolean removeReservationByInfo(String date, String time, String room) {
         File file = new File("storage/reservation_data.txt");
-        if (!file.exists()) {
-            return false;
-        }
+        if (!file.exists()) return false;
 
         List<String> kept = new ArrayList<>();
         boolean removed = false;
 
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            int currentId = 1;
             while ((line = reader.readLine()) != null) {
-                if (String.valueOf(currentId).equals(id)) {
-                    // 이 줄은 삭제(KEEP하지 않음)
-                    removed = true;
-                } else {
-                    kept.add(line);
+                String[] parts = line.split(",");
+                // parts[0]=date, parts[1]=time, parts[2]=room
+                if (!removed
+                    && parts.length >= 3
+                    && parts[0].equals(date)
+                    && parts[1].equals(time)
+                    && parts[2].equals(room)) {
+                    removed = true;  // 첫 매치만 삭제
+                    continue;
                 }
-                currentId++;
+                kept.add(line);
             }
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
 
-        if (!removed) {
-            return false;
-        }
+        if (!removed) return false;
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (String ln : kept) {
